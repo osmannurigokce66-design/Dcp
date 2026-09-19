@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8. Sınıf LGS Akıllı Müfredat & Çalışma Koçu</title>
+    <title>8. Sınıf LGS Akıllı Çalışma Koçu & Haftalık Rapor</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -36,7 +36,7 @@
             margin: 0 auto;
         }
 
-        h1, h2 {
+        h1, h2, h3 {
             text-align: center;
             color: var(--primary);
             margin-bottom: 15px;
@@ -50,7 +50,7 @@
             margin-bottom: 20px;
         }
 
-        /* Akıllı Müfredat & Bugünün Konuları Kutusu */
+        /* Müfredat Kartı */
         .curriculum-card {
             background: linear-gradient(135deg, #1e1b4b, #312e81);
             color: white;
@@ -97,12 +97,6 @@
             color: #38bdf8;
             font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .topic-item span {
-            font-size: 0.95rem;
-            font-weight: 600;
         }
 
         .grid-form {
@@ -145,6 +139,7 @@
         .btn:hover { background-color: var(--primary-hover); }
         .btn-success { background-color: var(--success); }
         .btn-danger { background-color: var(--danger); }
+        .btn-warning { background-color: var(--warning); color: #000; }
 
         /* Timer Box */
         .timer-card {
@@ -170,7 +165,7 @@
             color: #facc15;
         }
 
-        /* Proof Section */
+        /* Upload Section */
         .upload-section {
             border: 2px dashed var(--primary);
             padding: 20px;
@@ -210,7 +205,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
         }
 
         .time-slot.completed {
@@ -218,47 +212,104 @@
             border-left: 4px solid var(--success);
         }
 
-        .time-slot.completed .slot-text {
-            text-decoration: line-through;
-            color: #059669;
-        }
-
         .badge {
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }
 
         .badge-work { background: #dbeafe; color: #1e40af; }
-        .badge-rest { background: #dcfce7; color: #166534; }
         .badge-completed { background: #10b981; color: white; }
+
+        /* Progress Bar */
+        .progress-container {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 20px;
+            width: 100%;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            text-align: center;
+            color: white;
+            font-size: 0.8rem;
+            line-height: 20px;
+            font-weight: bold;
+        }
+
+        /* Modal / Report Section */
+        .report-box {
+            background: #ffffff;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .signature-area {
+            margin-top: 25px;
+            border-top: 2px dashed #94a3b8;
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .signature-box {
+            border: 1px solid #cbd5e1;
+            width: 250px;
+            height: 80px;
+            border-radius: 6px;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #reportPrintArea, #reportPrintArea * { visibility: visible; }
+            #reportPrintArea { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎯 8. Sınıf LGS Akıllı Çalışma Koçu</h1>
+    <h1 class="no-print">🎯 8. Sınıf LGS Akıllı Çalışma Koçu</h1>
 
-    <!-- DİNAMİK MÜFREDAT KARTI -->
-    <div class="curriculum-card">
+    <!-- HAFTALIK HEDEF ÖZETİ (600 Soru) -->
+    <div class="card no-print">
+        <h2>📊 Haftalık Soru Hedefi (Hedef: 600 Soru)</h2>
+        <div class="progress-container">
+            <div class="progress-bar" id="weeklyProgressBar">0%</div>
+        </div>
+        <p style="text-align: center; font-weight: bold; margin-top: 5px;" id="weeklyProgressText">
+            Çözülen: 0 / 600 Soru (Kalan: 600 Soru)
+        </p>
+    </div>
+
+    <!-- MÜFREDAT KARTI -->
+    <div class="curriculum-card no-print">
         <div class="curriculum-header">
             <h2>📅 Bugünün LGS Müfredat Hedefleri</h2>
             <div class="date-badge" id="currentDateDisplay">Tarih Yükleniyor...</div>
         </div>
-        <p style="margin-bottom: 15px; font-size: 0.95rem; opacity: 0.9;">
-            Bugünün tarihine göre MEB 8. Sınıf yıllık planından otomatik çekilen çalışma konuların:
-        </p>
-        <div class="topic-list" id="todayTopicsContainer">
-            <!-- Konular JS ile otomatik eklenecek -->
-        </div>
+        <div class="topic-list" id="todayTopicsContainer"></div>
     </div>
 
-    <!-- 1. ZAMANLAYICI BÖLÜMÜ -->
-    <div class="timer-card">
+    <!-- SAYAÇ BÖLÜMÜ -->
+    <div class="timer-card no-print">
         <div class="timer-status" id="timerStatus">DERS SEANSI BEKLENİYOR</div>
         <div class="timer-display" id="timerDisplay">40:00</div>
         <div style="display: flex; gap: 10px; justify-content: center; max-width: 400px; margin: 0 auto;">
@@ -268,8 +319,8 @@
         </div>
     </div>
 
-    <!-- 2. SAATLİK PROGRAM OLUŞTURUCU -->
-    <div class="card">
+    <!-- SAATLİK PROGRAM OLUŞTURUCU -->
+    <div class="card no-print">
         <h2>⏱️ Günlük Ders Programı Oluşturucu</h2>
         <div class="grid-form">
             <div class="form-group">
@@ -289,31 +340,27 @@
                 <input type="number" id="totalSessions" value="4" min="1" max="10">
             </div>
         </div>
-        <button class="btn" onclick="generateHourlySchedule()">Programı Günün Konularına Göre Oluştur</button>
+        <button class="btn" onclick="generateHourlySchedule()">Programı Oluştur (Hedef Soru Sayılarıyla)</button>
     </div>
 
-    <div class="schedule-grid" id="hourlyGrid"></div>
+    <div class="schedule-grid no-print" id="hourlyGrid"></div>
 
-    <!-- 3. FOTOĞRAFLI GÖREV ONAYLAMA -->
-    <div class="card" id="proofCard">
+    <!-- FOTOĞRAFLI GÖREV ONAYLAMA -->
+    <div class="card no-print" id="proofCard">
         <h2>📸 Çalışma Kanıtı & Görev Onaylama</h2>
-        <p style="font-size: 0.9rem; color: #64748b; text-align: center;">Çözdüğünüz soruların fotoğrafını yükleyin, ilgili bloğu seçip onaylayın.</p>
-        
         <div class="upload-section">
             <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
             <br>
             <img id="imagePreview" class="preview-img" alt="Çalışma Kanıtı">
             
-            <div class="grid-form" style="margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            <div class="grid-form" style="margin-top: 15px; max-width: 600px; margin: 15px auto 0 auto;">
                 <div class="form-group">
                     <label for="targetBlock">Tamamlanan Blok:</label>
-                    <select id="targetBlock">
-                        <option value="">Önce programı oluşturun...</option>
-                    </select>
+                    <select id="targetBlock"><option value="">Önce programı oluşturun...</option></select>
                 </div>
                 <div class="form-group">
-                    <label for="solvedCount">Çözülen Soru Sayısı:</label>
-                    <input type="number" id="solvedCount" value="15" min="1">
+                    <label for="solvedCount">Gerçekleşen Çözülen Soru Sayısı:</label>
+                    <input type="number" id="solvedCount" value="20" min="1">
                 </div>
                 <div class="form-group">
                     <label for="solvedSubject">Ders:</label>
@@ -327,170 +374,301 @@
                     </select>
                 </div>
             </div>
-            <button class="btn btn-success" onclick="verifyWork()" style="max-width: 300px; margin: 0 auto;">Görevi Onayla & Tik Ekle ✅</button>
+            <button class="btn btn-success" onclick="verifyWork()" style="max-width: 300px; margin: 10px auto 0 auto;">Görevi Onayla & Kaydet ✅</button>
         </div>
         <div id="verifyMessage" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
+    </div>
+
+    <!-- HAFTALIK RAPOR VE VELİ İMZA ALANI -->
+    <div style="margin-bottom: 20px;" class="no-print">
+        <button class="btn btn-warning" onclick="generateWeeklyReport()">📋 Haftalık Rapor Oluştur & Yazdır</button>
+        <button class="btn btn-danger" onclick="resetWeeklyData()" style="margin-top: 10px;">🗑️ Haftalık Verileri Sıfırla (Yeni Haftaya Başla)</button>
+    </div>
+
+    <div id="reportPrintArea" class="report-box" style="display: none;">
+        <h2>📝 8. Sınıf LGS Haftalık Çalışma ve Değerlendirme Raporu</h2>
+        <p style="text-align: center; margin-bottom: 15px; font-size: 0.9rem;" id="reportDateRange"></p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="background-color: #f1f5f9; text-align: left;">
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Ders</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Çözülen Soru Sayısı</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Tamamlanan Oturum</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+            <tfoot>
+                <tr style="font-weight: bold; background-color: #f8fafc;">
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;">TOPLAM</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalSolved">0 / 600 Soru</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalSessions">0 Blok</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div id="reportStatusMessage" style="font-weight: bold; margin-bottom: 20px;"></div>
+
+        <!-- VELİ İMZA BÖLÜMÜ -->
+        <div class="signature-area">
+            <div>
+                <p><strong>Öğrenci İmza:</strong></p>
+                <br>
+                <p>_____________________</p>
+            </div>
+            <div>
+                <p><strong>Öğrenci Koçu / Danışman:</strong></p>
+                <br>
+                <p>_____________________</p>
+            </div>
+            <div>
+                <p style="margin-bottom: 5px;"><strong>Veli Onayı & İmza:</strong></p>
+                <div class="signature-box">
+                    İmza / Tarih
+                </div>
+            </div>
+        </div>
+        <div class="no-print" style="margin-top: 15px;">
+            <button class="btn" onclick="window.print()">🖨️ Raporu Yazdır / PDF Olarak Kaydet</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- 8. SINIF MEB MÜFREDAT TAKVİMİ VERİTABANI (Aylara Göre) ---
+    const WEEKLY_GOAL = 600; // Haftalık hedef soru sayısı
+    const DAILY_GOAL = Math.round(WEEKLY_GOAL / 7); // Günlük ~86 soru
+
+    // MEB MÜFREDAT VERİTABANI
     const lgsCurriculum = {
-        8: { // Eylül (Güz dönemi başlangıcı)
-            matematik: "Çarpanlar ve Katlar / EBOB-EKOK",
-            fen: "Mevsimler ve İklim / İklim ve Hava Hareketleri",
-            turkce: "Fiilimsiler (Eylemsiler) / Sözcükte Anlam",
-            inkilap: "Bir Kahraman Doğuyor / Uyanan Avrupa ve Sarsılan Osmanlı",
-            ingilizce: "Unit 1: Friendship",
-            din: "Kader ve Kaza İnancı"
-        },
-        9: { // Ekim
-            matematik: "Üslü İfadeler / Kareköklü İfadeler",
-            fen: "DNA ve Genetik Kod / Kalıtım",
-            turkce: "Cümlenin Ögeleri / Söz Gruplarında Anlam",
-            inkilap: "Milli Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
-            ingilizce: "Unit 2: Teen Life / Unit 3: In The Kitchen",
-            din: "Zekat ve Sadaka İbadeti"
-        },
-        10: { // Kasım
-            matematik: "Veri İşleme (Grafikler) / Olasılık",
-            fen: "Basınç (Katı, Sıvı ve Gaz Basıncı)",
-            turkce: "Metin Türleri / Paragrafta Anlam",
-            inkilap: "Ya İstiklal Ya Ölüm! (Doğu ve Güney Cephesi)",
-            ingilizce: "Unit 4: On The Phone",
-            din: "Din ve Hayat"
-        },
-        11: { // Aralık
-            matematik: "Cebirsel İfadeler ve Özdeşlikler",
-            fen: "Madde ve Endüstri / Periyodik Sistem",
-            turkce: "Cümlede Anlam / Yazım Kuralları",
-            inkilap: "Batı Cephesi ve Lozan Antlaşması",
-            ingilizce: "Unit 5: The Internet",
-            din: "Hz. Muhammed'in Örnekliği"
-        },
-        0: { // Ocak
-            matematik: "Doğrusal Denklemler / Eğim",
-            fen: "Fiziksel ve Kimyasal Değişimler / Asitler ve Bazlar",
-            turkce: "Noktalama İşaretleri / Sözel Mantık",
-            inkilap: "Atatürkçülük ve Çağdaşlaşan Türkiye",
-            ingilizce: "Unit 6: Adventures",
-            din: "Kur'an-ı Kerim ve Özellikleri"
-        },
-        1: { // Şubat
-            matematik: "Eşitsizlikler / Üçgenler (Yardımcı Elemanlar)",
-            fen: "Maddenin Isı ile Etkileşimi / Türkiye'de Kimya Endüstrisi",
-            turkce: "Cümle Türleri / Anlatım Bozuklukları",
-            inkilap: "Siyasi Alanda Yapılan İnkılaplar",
-            ingilizce: "Unit 7: Tourism",
-            din: "İslam Dinine Göre Temel Haklar"
-        },
-        2: { // Mart
-            matematik: "Üçgenlerde Eşlik ve Benzerlik",
-            fen: "Basit Makineler (Kaldıraçlar, Makaralar)",
-            turkce: "Söz Sanatları / Görsel Okuma",
-            inkilap: "Toplumsal ve Ekonomik Alandaki İnkılaplar",
-            ingilizce: "Unit 8: Chores",
-            din: "Hz. Yusuf ve Hz. Musa'nın Hayatı"
-        },
-        3: { // Nisan
-            matematik: "Dönüşüm Geometrisi / Geometrik Cisimler",
-            fen: "Enerji Dönüşümleri ve Çevre Bilimi",
-            turkce: "Paragrafta Yapı / Sözel Akıl Yürütme",
-            inkilap: "Atatürk Dönemi Türk Dış Politikası",
-            ingilizce: "Unit 9: Science",
-            din: "Asr Suresi ve Anlamı"
-        },
-        4: { // Mayıs - Haziran (LGS Genel Tekrar)
-            matematik: "LGS Genel Deneme Çözümleri & Eksik Konu Tamamlama",
-            fen: "Elektrik Yükleri ve Elektrik Enerjisi & LGS Genel Tekrar",
-            turkce: "LGS Paragraf & Sözel Mantık Genel Soru Kampı",
-            inkilap: "Atatürk'ün Ölümü ve İkinci Dünya Savaşı & Genel Tekrar",
-            ingilizce: "Unit 10: Natural Forces & LGS Vocabulary Review",
-            din: "LGS Din Kültürü Soru Kampı & Denemeler"
-        },
-        5: { // Haziran
-            matematik: "LGS Son Soru Genel Tekrarı",
-            fen: "LGS Son Soru Genel Tekrarı",
-            turkce: "LGS Son Soru Genel Tekrarı",
-            inkilap: "LGS Son Soru Genel Tekrarı",
-            ingilizce: "LGS General Review",
-            din: "LGS Genel Tekrar"
-        },
-        6: { // Temmuz (Yaz Dönemi)
-            matematik: "8. Sınıf Ön Hazırlık / Temel Matematik Kampı",
-            fen: "8. Sınıf Fen Bilimleri Ön Hazırlık",
-            turkce: "Kitap Okuma ve Paragraf Hızlandırma",
-            inkilap: "Tarih Kültürü ve Genel Tekrar",
-            ingilizce: "English Grammar & Vocabulary Building",
-            din: "Genel İhlak ve Kültür"
-        }
+        8: { matematik: "Çarpanlar ve Katlar / EBOB-EKOK", fen: "Mevsimler ve İklim", turkce: "Fiilimsiler", inkilap: "Bir Kahraman Doğuyor", ingilizce: "Friendship", din: "Kader ve Kaza" },
+        9: { matematik: "Üslü İfadeler / Karekök", fen: "DNA ve Genetik Kod", turkce: "Cümlenin Ögeleri", inkilap: "Milli Uyanış", ingilizce: "Teen Life", din: "Zekat ve Sadaka" },
+        10: { matematik: "Veri İşleme / Olasılık", fen: "Basınç", turkce: "Metin Türleri", inkilap: "Ya İstiklal Ya Ölüm", ingilizce: "In The Kitchen", din: "Din ve Hayat" },
+        11: { matematik: "Cebirsel İfadeler", fen: "Madde ve Endüstri", turkce: "Yazım Kuralları", inkilap: "Batı Cephesi", ingilizce: "On The Phone", din: "Hz. Muhammed'in Örnekliği" },
+        0: { matematik: "Doğrusal Denklemler / Eğim", fen: "Asitler ve Bazlar", turkce: "Noktalama İşaretleri", inkilap: "Atatürkçülük", ingilizce: "The Internet", din: "Kur'an-ı Kerim" },
+        1: { matematik: "Eşitsizlikler / Üçgenler", fen: "Maddenin Isı ile Etkileşimi", turkce: "Cümle Türleri", inkilap: "Siyasi İnkılaplar", ingilizce: "Adventures", din: "Temel Haklar" },
+        2: { matematik: "Eşlik ve Benzerlik", fen: "Basit Makineler", turkce: "Söz Sanatları", inkilap: "Ekonomik İnkılaplar", ingilizce: "Tourism", din: "Hz. Yusuf'un Hayatı" },
+        3: { matematik: "Geometrik Cisimler", fen: "Enerji Dönüşümleri", turkce: "Paragrafta Yapı", inkilap: "Türk Dış Politikası", ingilizce: "Chores", din: "Asr Suresi" },
+        4: { matematik: "LGS Genel Deneme Çözümleri", fen: "LGS Genel Tekrar", turkce: "Sözel Mantık Soru Kampı", inkilap: "Atatürk'ün Ölümü", ingilizce: "Science", din: "LGS Soru Kampı" },
+        5: { matematik: "LGS Son Tekrar", fen: "LGS Son Tekrar", turkce: "LGS Son Tekrar", inkilap: "LGS Son Tekrar", ingilizce: "Natural Forces", din: "Genel Tekrar" },
+        6: { matematik: "8. Sınıf Ön Hazırlık", fen: "Fen Bilimleri Hazırlık", turkce: "Paragraf Hızlandırma", inkilap: "Tarih Kültürü", ingilizce: "Vocabulary Building", din: "Genel Kültür" }
     };
 
-    let todayTopics = {};
+    // LOCALSTORAGE VERİ YÜKLEME / KAYDETME
+    function getStoredData() {
+        const data = localStorage.getItem('lgs_study_data');
+        return data ? JSON.parse(data) : {
+            weeklySolved: { "Matematik": 0, "Fen Bilimleri": 0, "Türkçe": 0, "T.C. İnkılap Tarihi": 0, "İngilizce": 0, "Din Kültürü": 0 },
+            completedBlocks: []
+        };
+    }
 
-    // --- BUGÜNÜN TARİHİNİ VE KONULARINI YÜKLE ---
+    function saveData(data) {
+        localStorage.setItem('lgs_study_data', JSON.stringify(data));
+        updateProgressUI();
+    }
+
+    function updateProgressUI() {
+        const data = getStoredData();
+        let totalSolved = 0;
+        for (let sub in data.weeklySolved) {
+            totalSolved += data.weeklySolved[sub];
+        }
+
+        const percentage = Math.min(100, Math.round((totalSolved / WEEKLY_GOAL) * 100));
+        const progressBar = document.getElementById('weeklyProgressBar');
+        progressBar.style.width = percentage + '%';
+        progressBar.innerText = percentage + '%';
+
+        const remaining = Math.max(0, WEEKLY_GOAL - totalSolved);
+        document.getElementById('weeklyProgressText').innerText = 
+            `Çözülen: ${totalSolved} / ${WEEKLY_GOAL} Soru (Kalan Hedef: ${remaining} Soru)`;
+    }
+
+    // BUGÜNÜN MÜFREDATI
     function loadTodayCurriculum() {
         const now = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-        const dateString = now.toLocaleDateString('tr-TR', options);
+        const dateString = now.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
         document.getElementById('currentDateDisplay').innerText = dateString;
 
-        const currentMonth = now.getMonth(); // 0-11 arası (Ocak: 0, Eylül: 8)
-        
-        // Eğer tanımlı ay bulunamazsa varsayılan Eylül/Genel verilir
-        todayTopics = lgsCurriculum[currentMonth] || lgsCurriculum[8];
+        const currentMonth = now.getMonth();
+        const todayTopics = lgsCurriculum[currentMonth] || lgsCurriculum[8];
 
         const container = document.getElementById('todayTopicsContainer');
         container.innerHTML = `
-            <div class="topic-item">
-                <strong>📐 Matematik</strong>
-                <span>${todayTopics.matematik}</span>
-            </div>
-            <div class="topic-item">
-                <strong>🧪 Fen Bilimleri</strong>
-                <span>${todayTopics.fen}</span>
-            </div>
-            <div class="topic-item">
-                <strong>📖 Türkçe</strong>
-                <span>${todayTopics.turkce}</span>
-            </div>
-            <div class="topic-item">
-                <strong>🇹🇷 T.C. İnkılap</strong>
-                <span>${todayTopics.inkilap}</span>
-            </div>
-            <div class="topic-item">
-                <strong>🇬🇧 İngilizce</strong>
-                <span>${todayTopics.ingilizce}</span>
-            </div>
-            <div class="topic-item">
-                <strong>🕌 Din Kültürü</strong>
-                <span>${todayTopics.din}</span>
-            </div>
+            <div class="topic-item"><strong>📐 Matematik</strong><span>${todayTopics.matematik}</span></div>
+            <div class="topic-item"><strong>🧪 Fen Bilimleri</strong><span>${todayTopics.fen}</span></div>
+            <div class="topic-item"><strong>📖 Türkçe</strong><span>${todayTopics.turkce}</span></div>
+            <div class="topic-item"><strong>🇹🇷 T.C. İnkılap</strong><span>${todayTopics.inkilap}</span></div>
+            <div class="topic-item"><strong>🇬🇧 İngilizce</strong><span>${todayTopics.ingilizce}</span></div>
+            <div class="topic-item"><strong>🕌 Din Kültürü</strong><span>${todayTopics.din}</span></div>
         `;
     }
 
-    // --- ALARM SİSTEMİ ---
-    function playAlarmSound(type) {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+    // SAATLİK PROGRAMI HEDEF SORULARLA OLUŞTURMA
+    function generateHourlySchedule() {
+        const workMin = parseInt(document.getElementById('workDuration').value);
+        const restMin = parseInt(document.getElementById('restDuration').value);
+        const startTimeStr = document.getElementById('startTime').value;
+        const totalSessions = parseInt(document.getElementById('totalSessions').value);
 
-        if (type === 'work') {
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
+        const targetPerBlock = Math.ceil(DAILY_GOAL / totalSessions); // Blok başına düşen ortalama hedef soru
+
+        const container = document.getElementById('hourlyGrid');
+        const blockSelect = document.getElementById('targetBlock');
+        
+        container.innerHTML = '';
+        blockSelect.innerHTML = '<option value="">Tamamlanan Bloğu Seçin...</option>';
+
+        let [hours, minutes] = startTimeStr.split(':').map(Number);
+        let currTime = new Date();
+        currTime.setHours(hours, minutes, 0);
+
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.style.gridColumn = "1 / -1";
+
+        let html = `<h3>⏰ Günlük Program (Günlük Hedef: ~${DAILY_GOAL} Soru / Blok Başına Hedef: ${targetPerBlock} Soru)</h3><br>`;
+
+        const storedData = getStoredData();
+
+        for (let i = 1; i <= totalSessions; i++) {
+            let startStr = currTime.toTimeString().substring(0, 5);
+            currTime.setMinutes(currTime.getMinutes() + workMin);
+            let endStr = currTime.toTimeString().substring(0, 5);
+
+            const blockId = `block-${i}`;
+            const isCompleted = storedData.completedBlocks.includes(blockId);
+            const blockLabel = `${i}. Blok (${startStr} - ${endStr})`;
+
+            html += `
+                <div class="time-slot ${isCompleted ? 'completed' : ''}" id="${blockId}">
+                    <span class="slot-text">
+                        <strong>${i}. Blok (${startStr} - ${endStr}):</strong> 
+                        Odaklanma Seansı - 🎯 <strong>Hedef: ${targetPerBlock} Soru</strong>
+                    </span>
+                    <span class="badge ${isCompleted ? 'badge-completed' : 'badge-work'}" id="badge-${blockId}">
+                        ${isCompleted ? '✅ Tamamlandı' : '📖 Devam Ediyor'}
+                    </span>
+                </div>
+            `;
+
+            blockSelect.innerHTML += `<option value="${blockId}">${blockLabel}</option>`;
+
+            if (i < totalSessions) {
+                let restStart = currTime.toTimeString().substring(0, 5);
+                currTime.setMinutes(currTime.getMinutes() + restMin);
+                let restEnd = currTime.toTimeString().substring(0, 5);
+
+                html += `
+                    <div class="time-slot" style="background-color: #f0fdf4;">
+                        <span class="slot-text"><strong>Teneffüs / Mola:</strong> ${restStart} - ${restEnd} (${restMin} dk)</span>
+                        <span class="badge" style="background:#dcfce7; color:#166534;">☕ Dinlenme</span>
+                    </div>
+                `;
+            }
+        }
+
+        card.innerHTML = html;
+        container.appendChild(card);
+    }
+
+    // GÖREV ONAYLAMA VE KAYDETME
+    function verifyWork() {
+        const fileInput = document.getElementById('photoInput');
+        const selectedBlockId = document.getElementById('targetBlock').value;
+        const count = parseInt(document.getElementById('solvedCount').value) || 0;
+        const subject = document.getElementById('solvedSubject').value;
+        const msgDiv = document.getElementById('verifyMessage');
+
+        if (fileInput.files.length === 0) {
+            msgDiv.style.color = "var(--danger)";
+            msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın fotoğrafını yükleyin!";
+            return;
+        }
+
+        if (!selectedBlockId) {
+            msgDiv.style.color = "var(--danger)";
+            msgDiv.innerText = "⚠️ Lütfen hangi ders bloğunu tamamladığınızı seçin!";
+            return;
+        }
+
+        const data = getStoredData();
+        if (!data.weeklySolved[subject]) data.weeklySolved[subject] = 0;
+        data.weeklySolved[subject] += count;
+
+        if (!data.completedBlocks.includes(selectedBlockId)) {
+            data.completedBlocks.push(selectedBlockId);
+        }
+
+        saveData(data);
+
+        const targetSlot = document.getElementById(selectedBlockId);
+        const targetBadge = document.getElementById(`badge-${selectedBlockId}`);
+
+        if (targetSlot) {
+            targetSlot.classList.add('completed');
+            targetBadge.className = "badge badge-completed";
+            targetBadge.innerHTML = `✅ ${subject} (${count} Soru) - Tamamlandı`;
+        }
+
+        msgDiv.style.color = "var(--success)";
+        msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${count} soruluk kanıt kaydedildi.`;
+
+        fileInput.value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+    }
+
+    // HAFTALIK RAPOR OLUŞTURMA
+    function generateWeeklyReport() {
+        const data = getStoredData();
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = '';
+
+        let totalSolved = 0;
+        for (let subject in data.weeklySolved) {
+            const count = data.weeklySolved[subject];
+            totalSolved += count;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">${subject}</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${count} Soru</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">${count > 0 ? 'Tamamlandı' : 'Çözülmedi'}</td>
+                </tr>
+            `;
+        }
+
+        document.getElementById('reportTotalSolved').innerText = `${totalSolved} / ${WEEKLY_GOAL} Soru`;
+        document.getElementById('reportTotalSessions').innerText = `${data.completedBlocks.length} Blok Tamamlandı`;
+
+        const statusMsg = document.getElementById('reportStatusMessage');
+        if (totalSolved >= WEEKLY_GOAL) {
+            statusMsg.style.color = "var(--success)";
+            statusMsg.innerText = "🏆 TEBRİKLER! Haftalık 600 soru hedefine başarıyla ulaşıldı.";
         } else {
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 1.0);
+            statusMsg.style.color = "var(--danger)";
+            statusMsg.innerText = `⚠️ Haftalık 600 soru hedefine ulaşmak için ${WEEKLY_GOAL - totalSolved} soru eksiğiniz var.`;
+        }
+
+        const now = new Date();
+        document.getElementById('reportDateRange').innerText = `Rapor Tarihi: ${now.toLocaleDateString('tr-TR')}`;
+
+        document.getElementById('reportPrintArea').style.display = 'block';
+        document.getElementById('reportPrintArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // YENİ HAFTA SIFIRLAMA
+    function resetWeeklyData() {
+        if (confirm("Haftalık tüm soru çözümleri ve kayıtlar sıfırlanacak. Yeni haftaya başlamak istediğinize emin misiniz?")) {
+            localStorage.removeItem('lgs_study_data');
+            updateProgressUI();
+            document.getElementById('reportPrintArea').style.display = 'none';
+            generateHourlySchedule();
+            alert("Tüm haftalık veriler sıfırlandı. Yeni haftada başarılar!");
         }
     }
 
-    // --- SAYAÇ İŞLEMLERİ ---
+    // SAYAÇ İŞLEMLERİ
     let timerInterval = null;
     let timeLeft = 40 * 60;
     let isWorkingState = true;
@@ -504,8 +682,6 @@
 
     function startSession() {
         if (timerInterval) return;
-        
-        playAlarmSound('work');
         document.getElementById('timerStatus').innerText = isWorkingState ? "📚 DERS SAATİ (ODAKLAN)" : "☕ TENEFFÜS SAATİ";
         document.getElementById('timerStatus').style.color = isWorkingState ? "#38bdf8" : "#4ade80";
 
@@ -516,18 +692,9 @@
             } else {
                 clearInterval(timerInterval);
                 timerInterval = null;
-
-                if (isWorkingState) {
-                    playAlarmSound('rest');
-                    alert("🔔 Ders Bitti! Teneffüs Zamanı.");
-                    isWorkingState = false;
-                    timeLeft = parseInt(document.getElementById('restDuration').value) * 60;
-                } else {
-                    playAlarmSound('work');
-                    alert("🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
-                    isWorkingState = true;
-                    timeLeft = parseInt(document.getElementById('workDuration').value) * 60;
-                }
+                alert(isWorkingState ? "🔔 Ders Bitti! Teneffüs Zamanı." : "🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
+                isWorkingState = !isWorkingState;
+                timeLeft = (isWorkingState ? parseInt(document.getElementById('workDuration').value) : parseInt(document.getElementById('restDuration').value)) * 60;
                 startSession();
             }
         }, 1000);
@@ -549,7 +716,6 @@
         updateTimerDisplay();
     }
 
-    // FOTOĞRAF PREVIEW
     function handlePhotoUpload(event) {
         const file = event.target.files[0];
         if (file) {
@@ -563,117 +729,9 @@
         }
     }
 
-    // SAATLİK PROGRAMI MÜFREDATA GÖRE OLUŞTURMA
-    function generateHourlySchedule() {
-        const workMin = parseInt(document.getElementById('workDuration').value);
-        const restMin = parseInt(document.getElementById('restDuration').value);
-        const startTimeStr = document.getElementById('startTime').value;
-        const totalSessions = parseInt(document.getElementById('totalSessions').value);
-
-        const container = document.getElementById('hourlyGrid');
-        const blockSelect = document.getElementById('targetBlock');
-        
-        container.innerHTML = '';
-        blockSelect.innerHTML = '<option value="">Tamamlanan Bloğu Seçin...</option>';
-
-        let [hours, minutes] = startTimeStr.split(':').map(Number);
-        let currTime = new Date();
-        currTime.setHours(hours, minutes, 0);
-
-        // Ders sıralaması döngüsü
-        const subjectsOrder = [
-            { name: "Matematik", topic: todayTopics.matematik },
-            { name: "Fen Bilimleri", topic: todayTopics.fen },
-            { name: "Türkçe", topic: todayTopics.turkce },
-            { name: "T.C. İnkılap Tarihi", topic: todayTopics.inkilap },
-            { name: "İngilizce", topic: todayTopics.ingilizce },
-            { name: "Din Kültürü", topic: todayTopics.din }
-        ];
-
-        const card = document.createElement('div');
-        card.className = 'day-card';
-        card.style.gridColumn = "1 / -1";
-
-        let html = `<h3>⏰ Günün Müfredatına Göre Ders Çizelgen</h3><br>`;
-
-        for (let i = 1; i <= totalSessions; i++) {
-            let startStr = currTime.toTimeString().substring(0, 5);
-            currTime.setMinutes(currTime.getMinutes() + workMin);
-            let endStr = currTime.toTimeString().substring(0, 5);
-
-            const activeSub = subjectsOrder[(i - 1) % subjectsOrder.length];
-            const blockId = `block-${i}`;
-            const blockLabel = `${i}. Blok: ${activeSub.name} (${startStr} - ${endStr})`;
-
-            html += `
-                <div class="time-slot" id="${blockId}">
-                    <span class="slot-text">
-                        <strong>${i}. Blok (${startStr} - ${endStr}):</strong> 
-                        ${activeSub.name} - <i style="color:#64748b;">(${activeSub.topic})</i>
-                    </span>
-                    <span class="badge badge-work" id="badge-${blockId}">📖 Odaklanma Seansı</span>
-                </div>
-            `;
-
-            blockSelect.innerHTML += `<option value="${blockId}">${blockLabel}</option>`;
-
-            if (i < totalSessions) {
-                let restStart = currTime.toTimeString().substring(0, 5);
-                currTime.setMinutes(currTime.getMinutes() + restMin);
-                let restEnd = currTime.toTimeString().substring(0, 5);
-
-                html += `
-                    <div class="time-slot" style="background-color: #f0fdf4;">
-                        <span class="slot-text"><strong>Teneffüs / Mola:</strong> ${restStart} - ${restEnd} (${restMin} dk)</span>
-                        <span class="badge badge-rest">☕ Dinlenme</span>
-                    </div>
-                `;
-            }
-        }
-
-        card.innerHTML = html;
-        container.appendChild(card);
-    }
-
-    // GÖREV ONAYLAMA
-    function verifyWork() {
-        const fileInput = document.getElementById('photoInput');
-        const selectedBlockId = document.getElementById('targetBlock').value;
-        const count = document.getElementById('solvedCount').value;
-        const subject = document.getElementById('solvedSubject').value;
-        const msgDiv = document.getElementById('verifyMessage');
-
-        if (fileInput.files.length === 0) {
-            msgDiv.style.color = "var(--danger)";
-            msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın fotoğrafını yükleyin!";
-            return;
-        }
-
-        if (!selectedBlockId) {
-            msgDiv.style.color = "var(--danger)";
-            msgDiv.innerText = "⚠️ Lütfen hangi ders bloğunu tamamladığınızı seçin!";
-            return;
-        }
-
-        const targetSlot = document.getElementById(selectedBlockId);
-        const targetBadge = document.getElementById(`badge-${selectedBlockId}`);
-
-        if (targetSlot) {
-            targetSlot.classList.add('completed');
-            targetBadge.className = "badge badge-completed";
-            targetBadge.innerHTML = `✅ ${subject} (${count} Soru) - Tamamlandı`;
-
-            msgDiv.style.color = "var(--success)";
-            msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${count} soruluk kanıt onaylandı.`;
-            
-            fileInput.value = '';
-            document.getElementById('imagePreview').style.display = 'none';
-        }
-    }
-
-    // Sayfa Yüklendiğinde Çalıştır
     window.onload = function() {
         loadTodayCurriculum();
+        updateProgressUI();
         updateTimerDisplay();
     };
 </script>
