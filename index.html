@@ -50,7 +50,6 @@
             margin-bottom: 20px;
         }
 
-        /* Müfredat Kartı */
         .curriculum-card {
             background: linear-gradient(135deg, #1e1b4b, #312e81);
             color: white;
@@ -141,7 +140,6 @@
         .btn-danger { background-color: var(--danger); }
         .btn-warning { background-color: var(--warning); color: #000; }
 
-        /* Timer Box */
         .timer-card {
             text-align: center;
             background: #1e293b;
@@ -165,7 +163,6 @@
             color: #facc15;
         }
 
-        /* Upload Section */
         .upload-section {
             border: 2px dashed var(--primary);
             padding: 20px;
@@ -199,30 +196,32 @@
         }
 
         .time-slot {
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid var(--border);
             font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-radius: 6px;
+            margin-bottom: 6px;
         }
 
         .time-slot.completed {
             background-color: #ecfdf5 !important;
-            border-left: 4px solid var(--success);
+            border-left: 5px solid var(--success);
         }
 
         .badge {
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .badge-work { background: #dbeafe; color: #1e40af; }
         .badge-completed { background: #10b981; color: white; }
 
-        /* Progress Bar */
         .progress-container {
             background-color: #e2e8f0;
             border-radius: 10px;
@@ -244,7 +243,6 @@
             font-weight: bold;
         }
 
-        /* Report Section */
         .report-box {
             background: #ffffff;
             border: 2px solid var(--primary);
@@ -325,7 +323,6 @@
         <div class="grid-form">
             <div class="form-group">
                 <label for="workDuration">Ders Süresi (Dakika)</label>
-                <!-- oninput / onchange ile sayaç anında güncellenir -->
                 <input type="number" id="workDuration" value="40" min="1" oninput="onWorkDurationChange()">
             </div>
             <div class="form-group">
@@ -341,7 +338,7 @@
                 <input type="number" id="totalSessions" value="4" min="1" max="10">
             </div>
         </div>
-        <button class="btn" onclick="generateHourlySchedule()">Programı Oluştur (Hedef Soru Sayılarıyla)</button>
+        <button class="btn" onclick="generateHourlySchedule()">Programı Oluştur</button>
     </div>
 
     <div class="schedule-grid no-print" id="hourlyGrid"></div>
@@ -364,7 +361,7 @@
                     <input type="number" id="solvedCount" value="20" min="1">
                 </div>
                 <div class="form-group">
-                    <label for="solvedSubject">Ders:</label>
+                    <label for="solvedSubject">Çözülen Ders:</label>
                     <select id="solvedSubject">
                         <option value="Matematik">Matematik</option>
                         <option value="Fen Bilimleri">Fen Bilimleri</option>
@@ -410,7 +407,6 @@
 
         <div id="reportStatusMessage" style="font-weight: bold; margin-bottom: 20px;"></div>
 
-        <!-- VELİ İMZA BÖLÜMÜ -->
         <div class="signature-area">
             <div>
                 <p><strong>Öğrenci İmza:</strong></p>
@@ -439,7 +435,8 @@
     const WEEKLY_GOAL = 600;
     const DAILY_GOAL = Math.round(WEEKLY_GOAL / 7);
 
-    // MEB MÜFREDAT VERİTABANI
+    const defaultSubjects = ["Matematik", "Fen Bilimleri", "Türkçe", "T.C. İnkılap Tarihi", "İngilizce", "Din Kültürü"];
+
     const lgsCurriculum = {
         8: { matematik: "Çarpanlar ve Katlar / EBOB-EKOK", fen: "Mevsimler ve İklim", turkce: "Fiilimsiler", inkilap: "Bir Kahraman Doğuyor", ingilizce: "Friendship", din: "Kader ve Kaza" },
         9: { matematik: "Üslü İfadeler / Karekök", fen: "DNA ve Genetik Kod", turkce: "Cümlenin Ögeleri", inkilap: "Milli Uyanış", ingilizce: "Teen Life", din: "Zekat ve Sadaka" },
@@ -458,7 +455,7 @@
         const data = localStorage.getItem('lgs_study_data');
         return data ? JSON.parse(data) : {
             weeklySolved: { "Matematik": 0, "Fen Bilimleri": 0, "Türkçe": 0, "T.C. İnkılap Tarihi": 0, "İngilizce": 0, "Din Kültürü": 0 },
-            completedBlocks: []
+            completedBlocks: {}, // Object formatında tutuyoruz: { "block-1": { subject: "Matematik", count: 25 } }
         };
     }
 
@@ -503,14 +500,11 @@
         `;
     }
 
-    // --- SAYAÇ İŞLEMLERİ VE ANINDA GÜNCELLEME ---
     let timerInterval = null;
     let timeLeft = 40 * 60;
     let isWorkingState = true;
 
-    // Ders süresi kutusuna her sayı girildiğinde çalışan fonksiyon
     function onWorkDurationChange() {
-        // Eğer sayaç çalışmıyorsa ve ders modundaysak süreyi anında güncelle
         if (!timerInterval && isWorkingState) {
             const inputVal = parseInt(document.getElementById('workDuration').value);
             if (!isNaN(inputVal) && inputVal > 0) {
@@ -595,17 +589,23 @@
             let endStr = currTime.toTimeString().substring(0, 5);
 
             const blockId = `block-${i}`;
-            const isCompleted = storedData.completedBlocks.includes(blockId);
-            const blockLabel = `${i}. Blok (${startStr} - ${endStr})`;
+            const plannedSubject = defaultSubjects[(i - 1) % defaultSubjects.length];
+            const completedInfo = storedData.completedBlocks[blockId];
+            const isCompleted = !!completedInfo;
+
+            const displaySubject = isCompleted ? completedInfo.subject : plannedSubject;
+            const solvedText = isCompleted ? ` (Çözülen: ${completedInfo.count} Soru)` : ` (Hedef: ${targetPerBlock} Soru)`;
+
+            const blockLabel = `${i}. Blok (${startStr} - ${endStr}) - ${displaySubject}`;
 
             html += `
                 <div class="time-slot ${isCompleted ? 'completed' : ''}" id="${blockId}">
                     <span class="slot-text">
                         <strong>${i}. Blok (${startStr} - ${endStr}):</strong> 
-                        Odaklanma Seansı - 🎯 <strong>Hedef: ${targetPerBlock} Soru</strong>
+                        <span id="text-${blockId}">📚 <strong>${displaySubject}</strong>${solvedText}</span>
                     </span>
                     <span class="badge ${isCompleted ? 'badge-completed' : 'badge-work'}" id="badge-${blockId}">
-                        ${isCompleted ? '✅ Tamamlandı' : '📖 Devam Ediyor'}
+                        ${isCompleted ? '✅ Tamamlandı' : '📖 Planlandı'}
                     </span>
                 </div>
             `;
@@ -650,22 +650,34 @@
         }
 
         const data = getStoredData();
+
+        // Eğer bu blok önceden başka bir dersle tamamlandıysa eski soru sayısını düşelim
+        if (data.completedBlocks[selectedBlockId]) {
+            const old = data.completedBlocks[selectedBlockId];
+            if (data.weeklySolved[old.subject]) {
+                data.weeklySolved[old.subject] = Math.max(0, data.weeklySolved[old.subject] - old.count);
+            }
+        }
+
         if (!data.weeklySolved[subject]) data.weeklySolved[subject] = 0;
         data.weeklySolved[subject] += count;
 
-        if (!data.completedBlocks.includes(selectedBlockId)) {
-            data.completedBlocks.push(selectedBlockId);
-        }
+        data.completedBlocks[selectedBlockId] = { subject: subject, count: count };
 
         saveData(data);
 
+        // Arayüzdeki bloğu güncelle
         const targetSlot = document.getElementById(selectedBlockId);
         const targetBadge = document.getElementById(`badge-${selectedBlockId}`);
+        const textSpan = document.getElementById(`text-${selectedBlockId}`);
 
         if (targetSlot) {
             targetSlot.classList.add('completed');
             targetBadge.className = "badge badge-completed";
-            targetBadge.innerHTML = `✅ ${subject} (${count} Soru) - Tamamlandı`;
+            targetBadge.innerText = "✅ Tamamlandı";
+            if (textSpan) {
+                textSpan.innerHTML = `📚 <strong>${subject}</strong> (Çözülen: <strong>${count} Soru</strong>)`;
+            }
         }
 
         msgDiv.style.color = "var(--success)";
@@ -694,8 +706,10 @@
             `;
         }
 
+        const completedCount = Object.keys(data.completedBlocks).length;
+
         document.getElementById('reportTotalSolved').innerText = `${totalSolved} / ${WEEKLY_GOAL} Soru`;
-        document.getElementById('reportTotalSessions').innerText = `${data.completedBlocks.length} Blok Tamamlandı`;
+        document.getElementById('reportTotalSessions').innerText = `${completedCount} Blok Tamamlandı`;
 
         const statusMsg = document.getElementById('reportStatusMessage');
         if (totalSolved >= WEEKLY_GOAL) {
@@ -739,7 +753,7 @@
     window.onload = function() {
         loadTodayCurriculum();
         updateProgressUI();
-        onWorkDurationChange(); // Açılışta Ders Süresi kutusundaki değeri sayaca aktarır
+        onWorkDurationChange();
     };
 </script>
 
