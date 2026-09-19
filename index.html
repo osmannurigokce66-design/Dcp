@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8. Sınıf LGS Pro Koç & Akıllı Sayaç</title>
+    <title>8. Sınıf LGS Akıllı Müfredat & Çalışma Koçu</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -48,6 +48,61 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+        }
+
+        /* Akıllı Müfredat & Bugünün Konuları Kutusu */
+        .curriculum-card {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .curriculum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .date-badge {
+            background: #4f46e5;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .topic-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .topic-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+
+        .topic-item strong {
+            display: block;
+            color: #38bdf8;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .topic-item span {
+            font-size: 0.95rem;
+            font-weight: 600;
         }
 
         .grid-form {
@@ -158,7 +213,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Tamamlanan Blok Stili */
         .time-slot.completed {
             background-color: #ecfdf5 !important;
             border-left: 4px solid var(--success);
@@ -187,9 +241,23 @@
 <body>
 
 <div class="container">
-    <h1>🚀 LGS Çalışma Odası & Akıllı Sayaç</h1>
+    <h1>🎯 8. Sınıf LGS Akıllı Çalışma Koçu</h1>
 
-    <!-- 1. ZAMANLAYICI VE ALARM BÖLÜMÜ -->
+    <!-- DİNAMİK MÜFREDAT KARTI -->
+    <div class="curriculum-card">
+        <div class="curriculum-header">
+            <h2>📅 Bugünün LGS Müfredat Hedefleri</h2>
+            <div class="date-badge" id="currentDateDisplay">Tarih Yükleniyor...</div>
+        </div>
+        <p style="margin-bottom: 15px; font-size: 0.95rem; opacity: 0.9;">
+            Bugünün tarihine göre MEB 8. Sınıf yıllık planından otomatik çekilen çalışma konuların:
+        </p>
+        <div class="topic-list" id="todayTopicsContainer">
+            <!-- Konular JS ile otomatik eklenecek -->
+        </div>
+    </div>
+
+    <!-- 1. ZAMANLAYICI BÖLÜMÜ -->
     <div class="timer-card">
         <div class="timer-status" id="timerStatus">DERS SEANSI BEKLENİYOR</div>
         <div class="timer-display" id="timerDisplay">40:00</div>
@@ -200,9 +268,9 @@
         </div>
     </div>
 
-    <!-- 2. SAATLİK VE TENEFFÜSLÜ PROGRAM OLUŞTURUCU -->
+    <!-- 2. SAATLİK PROGRAM OLUŞTURUCU -->
     <div class="card">
-        <h2>📅 Saatlik Program Oluşturucu</h2>
+        <h2>⏱️ Günlük Ders Programı Oluşturucu</h2>
         <div class="grid-form">
             <div class="form-group">
                 <label for="workDuration">Ders Süresi (Dakika)</label>
@@ -221,7 +289,7 @@
                 <input type="number" id="totalSessions" value="4" min="1" max="10">
             </div>
         </div>
-        <button class="btn" onclick="generateHourlySchedule()">Saatlik Programı Oluştur</button>
+        <button class="btn" onclick="generateHourlySchedule()">Programı Günün Konularına Göre Oluştur</button>
     </div>
 
     <div class="schedule-grid" id="hourlyGrid"></div>
@@ -229,7 +297,7 @@
     <!-- 3. FOTOĞRAFLI GÖREV ONAYLAMA -->
     <div class="card" id="proofCard">
         <h2>📸 Çalışma Kanıtı & Görev Onaylama</h2>
-        <p style="font-size: 0.9rem; color: #64748b; text-align: center;">Çözdüğünüz soruların veya çalışma masanızın fotoğrafını yükleyin, tamamladığınız bloğu seçip doğrulayın.</p>
+        <p style="font-size: 0.9rem; color: #64748b; text-align: center;">Çözdüğünüz soruların fotoğrafını yükleyin, ilgili bloğu seçip onaylayın.</p>
         
         <div class="upload-section">
             <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
@@ -245,7 +313,7 @@
                 </div>
                 <div class="form-group">
                     <label for="solvedCount">Çözülen Soru Sayısı:</label>
-                    <input type="number" id="solvedCount" value="10" min="1">
+                    <input type="number" id="solvedCount" value="15" min="1">
                 </div>
                 <div class="form-group">
                     <label for="solvedSubject">Ders:</label>
@@ -253,7 +321,7 @@
                         <option value="Matematik">Matematik</option>
                         <option value="Fen Bilimleri">Fen Bilimleri</option>
                         <option value="Türkçe">Türkçe</option>
-                        <option value="İnkılap Tarihi">İnkılap Tarihi</option>
+                        <option value="T.C. İnkılap Tarihi">T.C. İnkılap Tarihi</option>
                         <option value="İngilizce">İngilizce</option>
                         <option value="Din Kültürü">Din Kültürü</option>
                     </select>
@@ -266,7 +334,142 @@
 </div>
 
 <script>
-    // SESLİ ALARM SİSTEMİ
+    // --- 8. SINIF MEB MÜFREDAT TAKVİMİ VERİTABANI (Aylara Göre) ---
+    const lgsCurriculum = {
+        8: { // Eylül (Güz dönemi başlangıcı)
+            matematik: "Çarpanlar ve Katlar / EBOB-EKOK",
+            fen: "Mevsimler ve İklim / İklim ve Hava Hareketleri",
+            turkce: "Fiilimsiler (Eylemsiler) / Sözcükte Anlam",
+            inkilap: "Bir Kahraman Doğuyor / Uyanan Avrupa ve Sarsılan Osmanlı",
+            ingilizce: "Unit 1: Friendship",
+            din: "Kader ve Kaza İnancı"
+        },
+        9: { // Ekim
+            matematik: "Üslü İfadeler / Kareköklü İfadeler",
+            fen: "DNA ve Genetik Kod / Kalıtım",
+            turkce: "Cümlenin Ögeleri / Söz Gruplarında Anlam",
+            inkilap: "Milli Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+            ingilizce: "Unit 2: Teen Life / Unit 3: In The Kitchen",
+            din: "Zekat ve Sadaka İbadeti"
+        },
+        10: { // Kasım
+            matematik: "Veri İşleme (Grafikler) / Olasılık",
+            fen: "Basınç (Katı, Sıvı ve Gaz Basıncı)",
+            turkce: "Metin Türleri / Paragrafta Anlam",
+            inkilap: "Ya İstiklal Ya Ölüm! (Doğu ve Güney Cephesi)",
+            ingilizce: "Unit 4: On The Phone",
+            din: "Din ve Hayat"
+        },
+        11: { // Aralık
+            matematik: "Cebirsel İfadeler ve Özdeşlikler",
+            fen: "Madde ve Endüstri / Periyodik Sistem",
+            turkce: "Cümlede Anlam / Yazım Kuralları",
+            inkilap: "Batı Cephesi ve Lozan Antlaşması",
+            ingilizce: "Unit 5: The Internet",
+            din: "Hz. Muhammed'in Örnekliği"
+        },
+        0: { // Ocak
+            matematik: "Doğrusal Denklemler / Eğim",
+            fen: "Fiziksel ve Kimyasal Değişimler / Asitler ve Bazlar",
+            turkce: "Noktalama İşaretleri / Sözel Mantık",
+            inkilap: "Atatürkçülük ve Çağdaşlaşan Türkiye",
+            ingilizce: "Unit 6: Adventures",
+            din: "Kur'an-ı Kerim ve Özellikleri"
+        },
+        1: { // Şubat
+            matematik: "Eşitsizlikler / Üçgenler (Yardımcı Elemanlar)",
+            fen: "Maddenin Isı ile Etkileşimi / Türkiye'de Kimya Endüstrisi",
+            turkce: "Cümle Türleri / Anlatım Bozuklukları",
+            inkilap: "Siyasi Alanda Yapılan İnkılaplar",
+            ingilizce: "Unit 7: Tourism",
+            din: "İslam Dinine Göre Temel Haklar"
+        },
+        2: { // Mart
+            matematik: "Üçgenlerde Eşlik ve Benzerlik",
+            fen: "Basit Makineler (Kaldıraçlar, Makaralar)",
+            turkce: "Söz Sanatları / Görsel Okuma",
+            inkilap: "Toplumsal ve Ekonomik Alandaki İnkılaplar",
+            ingilizce: "Unit 8: Chores",
+            din: "Hz. Yusuf ve Hz. Musa'nın Hayatı"
+        },
+        3: { // Nisan
+            matematik: "Dönüşüm Geometrisi / Geometrik Cisimler",
+            fen: "Enerji Dönüşümleri ve Çevre Bilimi",
+            turkce: "Paragrafta Yapı / Sözel Akıl Yürütme",
+            inkilap: "Atatürk Dönemi Türk Dış Politikası",
+            ingilizce: "Unit 9: Science",
+            din: "Asr Suresi ve Anlamı"
+        },
+        4: { // Mayıs - Haziran (LGS Genel Tekrar)
+            matematik: "LGS Genel Deneme Çözümleri & Eksik Konu Tamamlama",
+            fen: "Elektrik Yükleri ve Elektrik Enerjisi & LGS Genel Tekrar",
+            turkce: "LGS Paragraf & Sözel Mantık Genel Soru Kampı",
+            inkilap: "Atatürk'ün Ölümü ve İkinci Dünya Savaşı & Genel Tekrar",
+            ingilizce: "Unit 10: Natural Forces & LGS Vocabulary Review",
+            din: "LGS Din Kültürü Soru Kampı & Denemeler"
+        },
+        5: { // Haziran
+            matematik: "LGS Son Soru Genel Tekrarı",
+            fen: "LGS Son Soru Genel Tekrarı",
+            turkce: "LGS Son Soru Genel Tekrarı",
+            inkilap: "LGS Son Soru Genel Tekrarı",
+            ingilizce: "LGS General Review",
+            din: "LGS Genel Tekrar"
+        },
+        6: { // Temmuz (Yaz Dönemi)
+            matematik: "8. Sınıf Ön Hazırlık / Temel Matematik Kampı",
+            fen: "8. Sınıf Fen Bilimleri Ön Hazırlık",
+            turkce: "Kitap Okuma ve Paragraf Hızlandırma",
+            inkilap: "Tarih Kültürü ve Genel Tekrar",
+            ingilizce: "English Grammar & Vocabulary Building",
+            din: "Genel İhlak ve Kültür"
+        }
+    };
+
+    let todayTopics = {};
+
+    // --- BUGÜNÜN TARİHİNİ VE KONULARINI YÜKLE ---
+    function loadTodayCurriculum() {
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+        const dateString = now.toLocaleDateString('tr-TR', options);
+        document.getElementById('currentDateDisplay').innerText = dateString;
+
+        const currentMonth = now.getMonth(); // 0-11 arası (Ocak: 0, Eylül: 8)
+        
+        // Eğer tanımlı ay bulunamazsa varsayılan Eylül/Genel verilir
+        todayTopics = lgsCurriculum[currentMonth] || lgsCurriculum[8];
+
+        const container = document.getElementById('todayTopicsContainer');
+        container.innerHTML = `
+            <div class="topic-item">
+                <strong>📐 Matematik</strong>
+                <span>${todayTopics.matematik}</span>
+            </div>
+            <div class="topic-item">
+                <strong>🧪 Fen Bilimleri</strong>
+                <span>${todayTopics.fen}</span>
+            </div>
+            <div class="topic-item">
+                <strong>📖 Türkçe</strong>
+                <span>${todayTopics.turkce}</span>
+            </div>
+            <div class="topic-item">
+                <strong>🇹🇷 T.C. İnkılap</strong>
+                <span>${todayTopics.inkilap}</span>
+            </div>
+            <div class="topic-item">
+                <strong>🇬🇧 İngilizce</strong>
+                <span>${todayTopics.ingilizce}</span>
+            </div>
+            <div class="topic-item">
+                <strong>🕌 Din Kültürü</strong>
+                <span>${todayTopics.din}</span>
+            </div>
+        `;
+    }
+
+    // --- ALARM SİSTEMİ ---
     function playAlarmSound(type) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -287,15 +490,7 @@
         }
     }
 
-    function speakNotification(text) {
-        if ('speechSynthesis' in window) {
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'tr-TR';
-            window.speechSynthesis.speak(msg);
-        }
-    }
-
-    // SAYAÇ İŞLEMLERİ
+    // --- SAYAÇ İŞLEMLERİ ---
     let timerInterval = null;
     let timeLeft = 40 * 60;
     let isWorkingState = true;
@@ -311,7 +506,6 @@
         if (timerInterval) return;
         
         playAlarmSound('work');
-        speakNotification("Ders başladı, iyi çalışmalar.");
         document.getElementById('timerStatus').innerText = isWorkingState ? "📚 DERS SAATİ (ODAKLAN)" : "☕ TENEFFÜS SAATİ";
         document.getElementById('timerStatus').style.color = isWorkingState ? "#38bdf8" : "#4ade80";
 
@@ -325,13 +519,11 @@
 
                 if (isWorkingState) {
                     playAlarmSound('rest');
-                    speakNotification("Ders bitti. Teneffüs zamanı.");
                     alert("🔔 Ders Bitti! Teneffüs Zamanı.");
                     isWorkingState = false;
                     timeLeft = parseInt(document.getElementById('restDuration').value) * 60;
                 } else {
                     playAlarmSound('work');
-                    speakNotification("Teneffüs bitti. Yeni ders başlıyor.");
                     alert("🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
                     isWorkingState = true;
                     timeLeft = parseInt(document.getElementById('workDuration').value) * 60;
@@ -357,7 +549,7 @@
         updateTimerDisplay();
     }
 
-    // FOTOĞRAF YÜKLEME PREVIEW
+    // FOTOĞRAF PREVIEW
     function handlePhotoUpload(event) {
         const file = event.target.files[0];
         if (file) {
@@ -371,7 +563,7 @@
         }
     }
 
-    // SAATLİK PROGRAMI OLUŞTURMA
+    // SAATLİK PROGRAMI MÜFREDATA GÖRE OLUŞTURMA
     function generateHourlySchedule() {
         const workMin = parseInt(document.getElementById('workDuration').value);
         const restMin = parseInt(document.getElementById('restDuration').value);
@@ -388,28 +580,41 @@
         let currTime = new Date();
         currTime.setHours(hours, minutes, 0);
 
+        // Ders sıralaması döngüsü
+        const subjectsOrder = [
+            { name: "Matematik", topic: todayTopics.matematik },
+            { name: "Fen Bilimleri", topic: todayTopics.fen },
+            { name: "Türkçe", topic: todayTopics.turkce },
+            { name: "T.C. İnkılap Tarihi", topic: todayTopics.inkilap },
+            { name: "İngilizce", topic: todayTopics.ingilizce },
+            { name: "Din Kültürü", topic: todayTopics.din }
+        ];
+
         const card = document.createElement('div');
         card.className = 'day-card';
         card.style.gridColumn = "1 / -1";
 
-        let html = `<h3>⏰ Günlük Çalışma Çizelgesi</h3><br>`;
+        let html = `<h3>⏰ Günün Müfredatına Göre Ders Çizelgen</h3><br>`;
 
         for (let i = 1; i <= totalSessions; i++) {
             let startStr = currTime.toTimeString().substring(0, 5);
             currTime.setMinutes(currTime.getMinutes() + workMin);
             let endStr = currTime.toTimeString().substring(0, 5);
 
+            const activeSub = subjectsOrder[(i - 1) % subjectsOrder.length];
             const blockId = `block-${i}`;
-            const blockLabel = `${i}. Blok (${startStr} - ${endStr})`;
+            const blockLabel = `${i}. Blok: ${activeSub.name} (${startStr} - ${endStr})`;
 
             html += `
                 <div class="time-slot" id="${blockId}">
-                    <span class="slot-text"><strong>${i}. Blok Ders:</strong> ${startStr} - ${endStr} (${workMin} dk)</span>
+                    <span class="slot-text">
+                        <strong>${i}. Blok (${startStr} - ${endStr}):</strong> 
+                        ${activeSub.name} - <i style="color:#64748b;">(${activeSub.topic})</i>
+                    </span>
                     <span class="badge badge-work" id="badge-${blockId}">📖 Odaklanma Seansı</span>
                 </div>
             `;
 
-            // Seçenek kutusuna blok ekle
             blockSelect.innerHTML += `<option value="${blockId}">${blockLabel}</option>`;
 
             if (i < totalSessions) {
@@ -430,7 +635,7 @@
         container.appendChild(card);
     }
 
-    // GÖREVİ FOTOĞRAFLA ONAYLAMA VE TİK EKLEME
+    // GÖREV ONAYLAMA
     function verifyWork() {
         const fileInput = document.getElementById('photoInput');
         const selectedBlockId = document.getElementById('targetBlock').value;
@@ -440,7 +645,7 @@
 
         if (fileInput.files.length === 0) {
             msgDiv.style.color = "var(--danger)";
-            msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın / testin fotoğrafını yükleyin!";
+            msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın fotoğrafını yükleyin!";
             return;
         }
 
@@ -450,7 +655,6 @@
             return;
         }
 
-        // İlgili bloğu bulup yeşil tik koyma
         const targetSlot = document.getElementById(selectedBlockId);
         const targetBadge = document.getElementById(`badge-${selectedBlockId}`);
 
@@ -460,17 +664,18 @@
             targetBadge.innerHTML = `✅ ${subject} (${count} Soru) - Tamamlandı`;
 
             msgDiv.style.color = "var(--success)";
-            msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${count} soruluk kanıt onaylandı. Programa tik eklendi!`;
+            msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${count} soruluk kanıt onaylandı.`;
             
-            speakNotification(`Tebrikler, ${subject} dersi başarıyla onaylandı.`);
-            
-            // Fotoğraf girdisini sıfırla
             fileInput.value = '';
             document.getElementById('imagePreview').style.display = 'none';
         }
     }
 
-    updateTimerDisplay();
+    // Sayfa Yüklendiğinde Çalıştır
+    window.onload = function() {
+        loadTodayCurriculum();
+        updateTimerDisplay();
+    };
 </script>
 
 </body>
