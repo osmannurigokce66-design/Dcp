@@ -244,7 +244,7 @@
             font-weight: bold;
         }
 
-        /* Modal / Report Section */
+        /* Report Section */
         .report-box {
             background: #ffffff;
             border: 2px solid var(--primary);
@@ -325,11 +325,12 @@
         <div class="grid-form">
             <div class="form-group">
                 <label for="workDuration">Ders Süresi (Dakika)</label>
-                <input type="number" id="workDuration" value="40">
+                <!-- oninput / onchange ile sayaç anında güncellenir -->
+                <input type="number" id="workDuration" value="40" min="1" oninput="onWorkDurationChange()">
             </div>
             <div class="form-group">
                 <label for="restDuration">Teneffüs Süresi (Dakika)</label>
-                <input type="number" id="restDuration" value="10">
+                <input type="number" id="restDuration" value="10" min="1">
             </div>
             <div class="form-group">
                 <label for="startTime">Çalışma Başlangıç Saati</label>
@@ -435,8 +436,8 @@
 </div>
 
 <script>
-    const WEEKLY_GOAL = 600; // Haftalık hedef soru sayısı
-    const DAILY_GOAL = Math.round(WEEKLY_GOAL / 7); // Günlük ~86 soru
+    const WEEKLY_GOAL = 600;
+    const DAILY_GOAL = Math.round(WEEKLY_GOAL / 7);
 
     // MEB MÜFREDAT VERİTABANI
     const lgsCurriculum = {
@@ -453,7 +454,6 @@
         6: { matematik: "8. Sınıf Ön Hazırlık", fen: "Fen Bilimleri Hazırlık", turkce: "Paragraf Hızlandırma", inkilap: "Tarih Kültürü", ingilizce: "Vocabulary Building", din: "Genel Kültür" }
     };
 
-    // LOCALSTORAGE VERİ YÜKLEME / KAYDETME
     function getStoredData() {
         const data = localStorage.getItem('lgs_study_data');
         return data ? JSON.parse(data) : {
@@ -484,7 +484,6 @@
             `Çözülen: ${totalSolved} / ${WEEKLY_GOAL} Soru (Kalan Hedef: ${remaining} Soru)`;
     }
 
-    // BUGÜNÜN MÜFREDATI
     function loadTodayCurriculum() {
         const now = new Date();
         const dateString = now.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
@@ -504,14 +503,73 @@
         `;
     }
 
-    // SAATLİK PROGRAMI HEDEF SORULARLA OLUŞTURMA
-    function generateHourlySchedule() {
-        const workMin = parseInt(document.getElementById('workDuration').value);
-        const restMin = parseInt(document.getElementById('restDuration').value);
-        const startTimeStr = document.getElementById('startTime').value;
-        const totalSessions = parseInt(document.getElementById('totalSessions').value);
+    // --- SAYAÇ İŞLEMLERİ VE ANINDA GÜNCELLEME ---
+    let timerInterval = null;
+    let timeLeft = 40 * 60;
+    let isWorkingState = true;
 
-        const targetPerBlock = Math.ceil(DAILY_GOAL / totalSessions); // Blok başına düşen ortalama hedef soru
+    // Ders süresi kutusuna her sayı girildiğinde çalışan fonksiyon
+    function onWorkDurationChange() {
+        // Eğer sayaç çalışmıyorsa ve ders modundaysak süreyi anında güncelle
+        if (!timerInterval && isWorkingState) {
+            const inputVal = parseInt(document.getElementById('workDuration').value);
+            if (!isNaN(inputVal) && inputVal > 0) {
+                timeLeft = inputVal * 60;
+                updateTimerDisplay();
+            }
+        }
+    }
+
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timerDisplay').innerText = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function startSession() {
+        if (timerInterval) return;
+        document.getElementById('timerStatus').innerText = isWorkingState ? "📚 DERS SAATİ (ODAKLAN)" : "☕ TENEFFÜS SAATİ";
+        document.getElementById('timerStatus').style.color = isWorkingState ? "#38bdf8" : "#4ade80";
+
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateTimerDisplay();
+            } else {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                alert(isWorkingState ? "🔔 Ders Bitti! Teneffüs Zamanı." : "🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
+                isWorkingState = !isWorkingState;
+                timeLeft = (isWorkingState ? parseInt(document.getElementById('workDuration').value) : parseInt(document.getElementById('restDuration').value)) * 60;
+                startSession();
+            }
+        }, 1000);
+    }
+
+    function pauseSession() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('timerStatus').innerText = "PAUSE (DURAKLATILDI)";
+        document.getElementById('timerStatus').style.color = "#f59e0b";
+    }
+
+    function resetSession() {
+        pauseSession();
+        isWorkingState = true;
+        timeLeft = parseInt(document.getElementById('workDuration').value) * 60;
+        document.getElementById('timerStatus').innerText = "DERS SEANSI BEKLENİYOR";
+        document.getElementById('timerStatus').style.color = "#facc15";
+        updateTimerDisplay();
+    }
+
+    function generateHourlySchedule() {
+        const workMin = parseInt(document.getElementById('workDuration').value) || 40;
+        const restMin = parseInt(document.getElementById('restDuration').value) || 10;
+        const startTimeStr = document.getElementById('startTime').value;
+        const totalSessions = parseInt(document.getElementById('totalSessions').value) || 4;
+
+        const targetPerBlock = Math.ceil(DAILY_GOAL / totalSessions);
 
         const container = document.getElementById('hourlyGrid');
         const blockSelect = document.getElementById('targetBlock');
@@ -572,7 +630,6 @@
         container.appendChild(card);
     }
 
-    // GÖREV ONAYLAMA VE KAYDETME
     function verifyWork() {
         const fileInput = document.getElementById('photoInput');
         const selectedBlockId = document.getElementById('targetBlock').value;
@@ -618,7 +675,6 @@
         document.getElementById('imagePreview').style.display = 'none';
     }
 
-    // HAFTALIK RAPOR OLUŞTURMA
     function generateWeeklyReport() {
         const data = getStoredData();
         const tbody = document.getElementById('reportTableBody');
@@ -657,7 +713,6 @@
         document.getElementById('reportPrintArea').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // YENİ HAFTA SIFIRLAMA
     function resetWeeklyData() {
         if (confirm("Haftalık tüm soru çözümleri ve kayıtlar sıfırlanacak. Yeni haftaya başlamak istediğinize emin misiniz?")) {
             localStorage.removeItem('lgs_study_data');
@@ -666,54 +721,6 @@
             generateHourlySchedule();
             alert("Tüm haftalık veriler sıfırlandı. Yeni haftada başarılar!");
         }
-    }
-
-    // SAYAÇ İŞLEMLERİ
-    let timerInterval = null;
-    let timeLeft = 40 * 60;
-    let isWorkingState = true;
-
-    function updateTimerDisplay() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-    function startSession() {
-        if (timerInterval) return;
-        document.getElementById('timerStatus').innerText = isWorkingState ? "📚 DERS SAATİ (ODAKLAN)" : "☕ TENEFFÜS SAATİ";
-        document.getElementById('timerStatus').style.color = isWorkingState ? "#38bdf8" : "#4ade80";
-
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateTimerDisplay();
-            } else {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                alert(isWorkingState ? "🔔 Ders Bitti! Teneffüs Zamanı." : "🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
-                isWorkingState = !isWorkingState;
-                timeLeft = (isWorkingState ? parseInt(document.getElementById('workDuration').value) : parseInt(document.getElementById('restDuration').value)) * 60;
-                startSession();
-            }
-        }, 1000);
-    }
-
-    function pauseSession() {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        document.getElementById('timerStatus').innerText = "PAUSE (DURAKLATILDI)";
-        document.getElementById('timerStatus').style.color = "#f59e0b";
-    }
-
-    function resetSession() {
-        pauseSession();
-        isWorkingState = true;
-        timeLeft = parseInt(document.getElementById('workDuration').value) * 60;
-        document.getElementById('timerStatus').innerText = "DERS SEANSI BEKLENİYOR";
-        document.getElementById('timerStatus').style.color = "#facc15";
-        updateTimerDisplay();
     }
 
     function handlePhotoUpload(event) {
@@ -732,7 +739,7 @@
     window.onload = function() {
         loadTodayCurriculum();
         updateProgressUI();
-        updateTimerDisplay();
+        onWorkDurationChange(); // Açılışta Ders Süresi kutusundaki değeri sayaca aktarır
     };
 </script>
 
