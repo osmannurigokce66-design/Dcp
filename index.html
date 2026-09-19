@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8. Sınıf LGS Ders Programı Oluşturucu</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .day-card {
+            background: var(--card-bg);
+            border-top: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .day-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .subject-tag {
+            font-weight: 600;
+        }
+
+        .question-count {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .summary {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎯 8. Sınıf LGS Ders Programı Hazırlayıcı</h1>
+
+    <div class="card">
+        <h3>1. Hedef ve Çalışma Düzenini Belirle</h3>
+        <br>
+        <div class="grid-form">
+            <div class="form-group">
+                <label for="dailyTarget">Günlük Hedef Soru Sayısı</label>
+                <input type="number" id="dailyTarget" value="150" min="20" step="10">
+            </div>
+            <div class="form-group">
+                <label for="studyDays">Haftalık Çalışma Gün Sayısı</label>
+                <select id="studyDays">
+                    <option value="6" selected>6 Gün (1 Gün Dinlenme)</option>
+                    <option value="7">7 Gün Tam Yoğunluk</option>
+                    <option value="5">5 Gün (Hafta sonu serbest)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="focusSubject">Ağırlık Verilecek Ders</label>
+                <select id="focusSubject">
+                    <option value="Matematik">Matematik</option>
+                    <option value="Fen Bilimleri">Fen Bilimleri</option>
+                    <option value="Türkçe">Türkçe</option>
+                    <option value="Dengeli">Hepsine Eşit Ağırlık</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="generateSchedule()">Programı Otomatik Oluştur</button>
+    </div>
+
+    <div id="output" style="display: none;">
+        <div class="summary" id="summaryText"></div>
+        <div class="schedule-grid" id="scheduleGrid"></div>
+    </div>
+</div>
+
+<script>
+    const subjects = [
+        { name: "Matematik", weight: 1.3, minQuestions: 20 },
+        { name: "Fen Bilimleri", weight: 1.2, minQuestions: 20 },
+        { name: "Türkçe", weight: 1.1, minQuestions: 25 },
+        { name: "T.C. İnkılap Tarihi", weight: 0.8, minQuestions: 15 },
+        { name: "İngilizce", weight: 0.8, minQuestions: 15 },
+        { name: "Din Kültürü", weight: 0.8, minQuestions: 15 }
+    ];
+
+    const daysList = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+
+    function generateSchedule() {
+        const dailyTarget = parseInt(document.getElementById('dailyTarget').value);
+        const studyDaysCount = parseInt(document.getElementById('studyDays').value);
+        const focusSubject = document.getElementById('focusSubject').value;
+
+        if (!dailyTarget || dailyTarget < 10) {
+            alert("Lütfen geçerli bir soru sayısı girin.");
+            return;
+        }
+
+        const grid = document.getElementById('scheduleGrid');
+        grid.innerHTML = '';
+
+        let activeDays = [...daysList];
+        if (studyDaysCount === 6) {
+            activeDays[6] = "Pazar (Dinlenme Günü)";
+        } else if (studyDaysCount === 5) {
+            activeDays[5] = "Cumartesi (Dinlenme Günü)";
+            activeDays[6] = "Pazar (Dinlenme Günü)";
+        }
+
+        let totalWeeklyQuestions = 0;
+
+        activeDays.forEach((day, index) => {
+            const dayCard = document.createElement('div');
+            dayCard.className = 'day-card';
+
+            let dayContent = `<div class="day-title">${day}</div>`;
+
+            if (day.includes("Dinlenme")) {
+                dayContent += `<p style="color: #64748b; font-style: italic; text-align: center; margin-top: 15px;">Bu gün dinlenme ve haftalık genel tekrar gününüzdür. ☕</p>`;
+            } else {
+                dayContent += `<ul class="task-list">`;
+                
+                // Her güne 3 ana ders dağıtalım
+                let selectedSubjects = getSubjectsForDay(index, focusSubject);
+                let dayQuestionSum = 0;
+
+                selectedSubjects.forEach(sub => {
+                    let qCount = Math.round((dailyTarget / selectedSubjects.length) * sub.multiplier);
+                    // 5'in katlarına yuvarla
+                    qCount = Math.ceil(qCount / 5) * 5;
+                    dayQuestionSum += qCount;
+
+                    dayContent += `
+                        <li class="task-item">
+                            <span class="subject-tag">${sub.name}</span>
+                            <span class="question-count">${qCount} Soru / Konu Çalışması</span>
+                        </li>
+                    `;
+                });
+
+                dayContent += `</ul>`;
+                dayContent += `<div style="margin-top: 10px; font-weight: bold; text-align: right; font-size: 0.85rem; color: #4f46e5;">Toplam: ${dayQuestionSum} Soru</div>`;
+                totalWeeklyQuestions += dayQuestionSum;
+            }
+
+            dayCard.innerHTML = dayContent;
+            grid.appendChild(dayCard);
+        });
+
+        document.getElementById('summaryText').innerText = `Haftalık Toplam Hedef: ~${totalWeeklyQuestions} Soru Çözümü ve Konu Tekrarı`;
+        document.getElementById('output').style.display = 'block';
+    }
+
+    function getSubjectsForDay(dayIndex, focusSubject) {
+        // Rotasyonel ders dağılımı
+        let daySubjects = [];
+        
+        if (dayIndex % 2 === 0) {
+            daySubjects = [
+                { name: "Matematik", multiplier: focusSubject === "Matematik" ? 1.2 : 1.0 },
+                { name: "Türkçe", multiplier: focusSubject === "Türkçe" ? 1.2 : 1.0 },
+                { name: "T.C. İnkılap Tarihi", multiplier: 0.8 }
+            ];
+        } else {
+            daySubjects = [
+                { name: "Fen Bilimleri", multiplier: focusSubject === "Fen Bilimleri" ? 1.2 : 1.0 },
+                { name: "İngilizce", multiplier: 0.9 },
+                { name: "Din Kültürü", multiplier: 0.8 }
+            ];
+        }
+
+        // Paragraf rutinini her güne ekle
+        daySubjects.push({ name: "Paragraf Rutini", multiplier: 0.5 });
+
+        return daySubjects;
+    }
+</script>
+
+</body>
+</html>
