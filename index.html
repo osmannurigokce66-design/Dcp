@@ -128,7 +128,7 @@
         .preview-img {
             max-width: 200px;
             max-height: 200px;
-            margin-top: 10px;
+            margin: 10px auto;
             border-radius: 8px;
             display: none;
             border: 2px solid var(--success);
@@ -149,30 +149,45 @@
         }
 
         .time-slot {
-            padding: 8px;
+            padding: 10px;
             border-bottom: 1px solid var(--border);
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Tamamlanan Blok Stili */
+        .time-slot.completed {
+            background-color: #ecfdf5 !important;
+            border-left: 4px solid var(--success);
+        }
+
+        .time-slot.completed .slot-text {
+            text-decoration: line-through;
+            color: #059669;
         }
 
         .badge {
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.75rem;
             font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .badge-work { background: #dbeafe; color: #1e40af; }
         .badge-rest { background: #dcfce7; color: #166534; }
-        .badge-done { background: #fef08a; color: #854d0e; }
+        .badge-completed { background: #10b981; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🚀 LGS Çalışma Odası & Akıllı Zamanlayıcı</h1>
+    <h1>🚀 LGS Çalışma Odası & Akıllı Sayaç</h1>
 
     <!-- 1. ZAMANLAYICI VE ALARM BÖLÜMÜ -->
     <div class="timer-card">
@@ -185,38 +200,7 @@
         </div>
     </div>
 
-    <!-- 2. YAPILAN DERSİN FOTOĞRAF KANITI VE DOĞRULAMA -->
-    <div class="card">
-        <h2>📸 Çalışma Kanıtı & Soru Takibi</h2>
-        <p style="font-size: 0.9rem; color: #64748b; text-align: center;">Çözdüğünüz soruların veya çalışma masanızın fotoğrafını yükleyin, sistem doğrulayıp hedefinize eklesin.</p>
-        
-        <div class="upload-section">
-            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
-            <br>
-            <img id="imagePreview" class="preview-img" alt="Çalışma Kanıtı">
-            <div class="grid-form" style="margin-top: 15px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                <div class="form-group">
-                    <label for="solvedCount">Çözülen Soru Sayısı:</label>
-                    <input type="number" id="solvedCount" value="10" min="1">
-                </div>
-                <div class="form-group">
-                    <label for="solvedSubject">Ders:</label>
-                    <select id="solvedSubject">
-                        <option value="Matematik">Matematik</option>
-                        <option value="Fen Bilimleri">Fen Bilimleri</option>
-                        <option value="Türkçe">Türkçe</option>
-                        <option value="İnkılap">İnkılap Tarihi</option>
-                        <option value="İngilizce">İngilizce</option>
-                        <option value="Din">Din Kültürü</option>
-                    </select>
-                </div>
-            </div>
-            <button class="btn btn-success" onclick="verifyWork()" style="max-width: 300px; margin: 0 auto;">Görevi Onayla & Kaydet</button>
-        </div>
-        <div id="verifyMessage" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
-    </div>
-
-    <!-- 3. SAATLİK VE TENEFFÜSLÜ PROGRAM OLUŞTURUCU -->
+    <!-- 2. SAATLİK VE TENEFFÜSLÜ PROGRAM OLUŞTURUCU -->
     <div class="card">
         <h2>📅 Saatlik Program Oluşturucu</h2>
         <div class="grid-form">
@@ -241,10 +225,48 @@
     </div>
 
     <div class="schedule-grid" id="hourlyGrid"></div>
+
+    <!-- 3. FOTOĞRAFLI GÖREV ONAYLAMA -->
+    <div class="card" id="proofCard">
+        <h2>📸 Çalışma Kanıtı & Görev Onaylama</h2>
+        <p style="font-size: 0.9rem; color: #64748b; text-align: center;">Çözdüğünüz soruların veya çalışma masanızın fotoğrafını yükleyin, tamamladığınız bloğu seçip doğrulayın.</p>
+        
+        <div class="upload-section">
+            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+            <br>
+            <img id="imagePreview" class="preview-img" alt="Çalışma Kanıtı">
+            
+            <div class="grid-form" style="margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <div class="form-group">
+                    <label for="targetBlock">Tamamlanan Blok:</label>
+                    <select id="targetBlock">
+                        <option value="">Önce programı oluşturun...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="solvedCount">Çözülen Soru Sayısı:</label>
+                    <input type="number" id="solvedCount" value="10" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="solvedSubject">Ders:</label>
+                    <select id="solvedSubject">
+                        <option value="Matematik">Matematik</option>
+                        <option value="Fen Bilimleri">Fen Bilimleri</option>
+                        <option value="Türkçe">Türkçe</option>
+                        <option value="İnkılap Tarihi">İnkılap Tarihi</option>
+                        <option value="İngilizce">İngilizce</option>
+                        <option value="Din Kültürü">Din Kültürü</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-success" onclick="verifyWork()" style="max-width: 300px; margin: 0 auto;">Görevi Onayla & Tik Ekle ✅</button>
+        </div>
+        <div id="verifyMessage" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
+    </div>
 </div>
 
 <script>
-    // SESLİ ALARM SİSTEMİ (Web Audio API)
+    // SESLİ ALARM SİSTEMİ
     function playAlarmSound(type) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -253,21 +275,18 @@
         gain.connect(audioCtx.destination);
 
         if (type === 'work') {
-            // Ders Başlama Zili (Yüksek Çift Bip)
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.5);
         } else {
-            // Teneffüs Zili (Uzun Melodik Ses)
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             osc.start();
             osc.stop(audioCtx.currentTime + 1.0);
         }
     }
 
-    // ARAYÜZ KONUŞMA BİLDİRİMİ (SpeechSynthesis)
     function speakNotification(text) {
         if ('speechSynthesis' in window) {
             const msg = new SpeechSynthesisUtterance(text);
@@ -276,9 +295,9 @@
         }
     }
 
-    // SAYAÇ DEĞİŞKENLERİ
+    // SAYAÇ İŞLEMLERİ
     let timerInterval = null;
-    let timeLeft = 40 * 60; // 40 dakika varsayılan
+    let timeLeft = 40 * 60;
     let isWorkingState = true;
 
     function updateTimerDisplay() {
@@ -305,16 +324,14 @@
                 timerInterval = null;
 
                 if (isWorkingState) {
-                    // Teneffüse Geçiş
                     playAlarmSound('rest');
-                    speakNotification("Ders bitti. Teneffüs zamanı, dinlenebilirsin.");
+                    speakNotification("Ders bitti. Teneffüs zamanı.");
                     alert("🔔 Ders Bitti! Teneffüs Zamanı.");
                     isWorkingState = false;
                     timeLeft = parseInt(document.getElementById('restDuration').value) * 60;
                 } else {
-                    // Tekrar Derse Geçiş
                     playAlarmSound('work');
-                    speakNotification("Teneffüs bitti. Yeni ders seansı başlıyor.");
+                    speakNotification("Teneffüs bitti. Yeni ders başlıyor.");
                     alert("🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
                     isWorkingState = true;
                     timeLeft = parseInt(document.getElementById('workDuration').value) * 60;
@@ -340,7 +357,7 @@
         updateTimerDisplay();
     }
 
-    // FOTOĞRAF KANITI İŞLEME
+    // FOTOĞRAF YÜKLEME PREVIEW
     function handlePhotoUpload(event) {
         const file = event.target.files[0];
         if (file) {
@@ -354,24 +371,7 @@
         }
     }
 
-    function verifyWork() {
-        const fileInput = document.getElementById('photoInput');
-        const count = document.getElementById('solvedCount').value;
-        const subject = document.getElementById('solvedSubject').value;
-        const msgDiv = document.getElementById('verifyMessage');
-
-        if (fileInput.files.length === 0) {
-            msgDiv.style.color = "var(--danger)";
-            msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın / çözdüğünüz testin fotoğrafını ekleyin!";
-            return;
-        }
-
-        msgDiv.style.color = "var(--success)";
-        msgDiv.innerText = `✅ TEBRİKLER! ${subject} dersinden ${count} soruluk çalışma kanıtı doğrulandı ve veritabanına işlendi.`;
-        speakNotification(`${subject} dersinden ${count} soru başarısıyla kaydedildi.`);
-    }
-
-    // SAATLİK PROGRAM OLUŞTURMA
+    // SAATLİK PROGRAMI OLUŞTURMA
     function generateHourlySchedule() {
         const workMin = parseInt(document.getElementById('workDuration').value);
         const restMin = parseInt(document.getElementById('restDuration').value);
@@ -379,7 +379,10 @@
         const totalSessions = parseInt(document.getElementById('totalSessions').value);
 
         const container = document.getElementById('hourlyGrid');
+        const blockSelect = document.getElementById('targetBlock');
+        
         container.innerHTML = '';
+        blockSelect.innerHTML = '<option value="">Tamamlanan Bloğu Seçin...</option>';
 
         let [hours, minutes] = startTimeStr.split(':').map(Number);
         let currTime = new Date();
@@ -389,22 +392,26 @@
         card.className = 'day-card';
         card.style.gridColumn = "1 / -1";
 
-        let html = `<h3>⏰ Günlük Saatlik Çalışma ve Teneffüs Çizelgesi</h3><br>`;
+        let html = `<h3>⏰ Günlük Çalışma Çizelgesi</h3><br>`;
 
         for (let i = 1; i <= totalSessions; i++) {
-            // Ders Zamanı
             let startStr = currTime.toTimeString().substring(0, 5);
             currTime.setMinutes(currTime.getMinutes() + workMin);
             let endStr = currTime.toTimeString().substring(0, 5);
 
+            const blockId = `block-${i}`;
+            const blockLabel = `${i}. Blok (${startStr} - ${endStr})`;
+
             html += `
-                <div class="time-slot">
-                    <span><strong>${i}. Blok Ders:</strong> ${startStr} - ${endStr} (${workMin} dk)</span>
-                    <span class="badge badge-work">📖 Odaklanma Seansı</span>
+                <div class="time-slot" id="${blockId}">
+                    <span class="slot-text"><strong>${i}. Blok Ders:</strong> ${startStr} - ${endStr} (${workMin} dk)</span>
+                    <span class="badge badge-work" id="badge-${blockId}">📖 Odaklanma Seansı</span>
                 </div>
             `;
 
-            // Teneffüs Zamanı (Son seans hariç)
+            // Seçenek kutusuna blok ekle
+            blockSelect.innerHTML += `<option value="${blockId}">${blockLabel}</option>`;
+
             if (i < totalSessions) {
                 let restStart = currTime.toTimeString().substring(0, 5);
                 currTime.setMinutes(currTime.getMinutes() + restMin);
@@ -412,8 +419,8 @@
 
                 html += `
                     <div class="time-slot" style="background-color: #f0fdf4;">
-                        <span><strong>Teneffüs / Mola:</strong> ${restStart} - ${restEnd} (${restMin} dk)</span>
-                        <span class="badge badge-rest">☕ Dinlenme / Mola</span>
+                        <span class="slot-text"><strong>Teneffüs / Mola:</strong> ${restStart} - ${restEnd} (${restMin} dk)</span>
+                        <span class="badge badge-rest">☕ Dinlenme</span>
                     </div>
                 `;
             }
@@ -423,7 +430,46 @@
         container.appendChild(card);
     }
 
-    // Sayfa Yüklendiğinde Zamanlayıcıyı Hazırla
+    // GÖREVİ FOTOĞRAFLA ONAYLAMA VE TİK EKLEME
+    function verifyWork() {
+        const fileInput = document.getElementById('photoInput');
+        const selectedBlockId = document.getElementById('targetBlock').value;
+        const count = document.getElementById('solvedCount').value;
+        const subject = document.getElementById('solvedSubject').value;
+        const msgDiv = document.getElementById('verifyMessage');
+
+        if (fileInput.files.length === 0) {
+            msgDiv.style.color = "var(--danger)";
+            msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın / testin fotoğrafını yükleyin!";
+            return;
+        }
+
+        if (!selectedBlockId) {
+            msgDiv.style.color = "var(--danger)";
+            msgDiv.innerText = "⚠️ Lütfen hangi ders bloğunu tamamladığınızı seçin!";
+            return;
+        }
+
+        // İlgili bloğu bulup yeşil tik koyma
+        const targetSlot = document.getElementById(selectedBlockId);
+        const targetBadge = document.getElementById(`badge-${selectedBlockId}`);
+
+        if (targetSlot) {
+            targetSlot.classList.add('completed');
+            targetBadge.className = "badge badge-completed";
+            targetBadge.innerHTML = `✅ ${subject} (${count} Soru) - Tamamlandı`;
+
+            msgDiv.style.color = "var(--success)";
+            msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${count} soruluk kanıt onaylandı. Programa tik eklendi!`;
+            
+            speakNotification(`Tebrikler, ${subject} dersi başarıyla onaylandı.`);
+            
+            // Fotoğraf girdisini sıfırla
+            fileInput.value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+    }
+
     updateTimerDisplay();
 </script>
 
