@@ -100,7 +100,7 @@
 
         .grid-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 15px;
         }
@@ -139,6 +139,7 @@
         .btn-success { background-color: var(--success); }
         .btn-danger { background-color: var(--danger); }
         .btn-warning { background-color: var(--warning); color: #000; }
+        .btn-info { background-color: #0284c7; }
 
         .timer-card {
             text-align: center;
@@ -273,6 +274,15 @@
             font-size: 0.85rem;
         }
 
+        .advice-card {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #0284c7;
+            color: #0369a1;
+            margin-top: 15px;
+        }
+
         @media print {
             body * { visibility: hidden; }
             #reportPrintArea, #reportPrintArea * { visibility: visible; }
@@ -293,7 +303,7 @@
             <div class="progress-bar" id="weeklyProgressBar">0%</div>
         </div>
         <p style="text-align: center; font-weight: bold; margin-top: 5px;" id="weeklyProgressText">
-            Çözülen: 0 / 600 Soru (Kalan: 600 Soru)
+            Çözülen: 0 / 600 Soru (Kalan: 600 Soru) | Toplam Net: 0.00
         </p>
     </div>
 
@@ -343,7 +353,7 @@
 
     <div class="schedule-grid no-print" id="hourlyGrid"></div>
 
-    <!-- FOTOĞRAFLI GÖREV ONAYLAMA -->
+    <!-- FOTOĞRAFLI GÖREV ONAYLAMA & NET DETAYLARI -->
     <div class="card no-print" id="proofCard">
         <h2>📸 Çalışma Kanıtı & Görev Onaylama</h2>
         <div class="upload-section">
@@ -351,14 +361,10 @@
             <br>
             <img id="imagePreview" class="preview-img" alt="Çalışma Kanıtı">
             
-            <div class="grid-form" style="margin-top: 15px; max-width: 600px; margin: 15px auto 0 auto;">
+            <div class="grid-form" style="margin-top: 15px; max-width: 800px; margin: 15px auto 0 auto;">
                 <div class="form-group">
                     <label for="targetBlock">Tamamlanan Blok:</label>
                     <select id="targetBlock"><option value="">Önce programı oluşturun...</option></select>
-                </div>
-                <div class="form-group">
-                    <label for="solvedCount">Gerçekleşen Çözülen Soru Sayısı:</label>
-                    <input type="number" id="solvedCount" value="20" min="1">
                 </div>
                 <div class="form-group">
                     <label for="solvedSubject">Çözülen Ders:</label>
@@ -371,6 +377,14 @@
                         <option value="Din Kültürü">Din Kültürü</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label for="correctCount">Doğru Sayısı:</label>
+                    <input type="number" id="correctCount" value="18" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="wrongCount">Yanlış Sayısı:</label>
+                    <input type="number" id="wrongCount" value="2" min="0">
+                </div>
             </div>
             <button class="btn btn-success" onclick="verifyWork()" style="max-width: 300px; margin: 10px auto 0 auto;">Görevi Onayla & Kaydet ✅</button>
         </div>
@@ -378,9 +392,10 @@
     </div>
 
     <!-- HAFTALIK RAPOR VE VELİ İMZA ALANI -->
-    <div style="margin-bottom: 20px;" class="no-print">
-        <button class="btn btn-warning" onclick="generateWeeklyReport()">📋 Haftalık Rapor Oluştur & Yazdır</button>
-        <button class="btn btn-danger" onclick="resetWeeklyData()" style="margin-top: 10px;">🗑️ Haftalık Verileri Sıfırla (Yeni Haftaya Başla)</button>
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
+        <button class="btn btn-warning" style="flex: 1;" onclick="generateWeeklyReport()">📋 Haftalık Rapor Oluştur</button>
+        <button class="btn btn-info" style="flex: 1;" onclick="exportToCSV()">📥 Excel / CSV Olarak İndir</button>
+        <button class="btn btn-danger" style="width: 100%; margin-top: 5px;" onclick="resetWeeklyData()">🗑️ Haftalık Verileri Sıfırla (Yeni Haftaya Başla)</button>
     </div>
 
     <div id="reportPrintArea" class="report-box" style="display: none;">
@@ -391,8 +406,10 @@
             <thead>
                 <tr style="background-color: #f1f5f9; text-align: left;">
                     <th style="padding: 10px; border: 1px solid #cbd5e1;">Ders</th>
-                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Çözülen Soru Sayısı</th>
-                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Tamamlanan Oturum</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Soru Sayısı</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Doğru</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Yanlış</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Net</th>
                 </tr>
             </thead>
             <tbody id="reportTableBody"></tbody>
@@ -400,12 +417,15 @@
                 <tr style="font-weight: bold; background-color: #f8fafc;">
                     <td style="padding: 10px; border: 1px solid #cbd5e1;">TOPLAM</td>
                     <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalSolved">0 / 600 Soru</td>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalSessions">0 Blok</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalCorrect">0</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalWrong">0</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalNet">0.00 Net</td>
                 </tr>
             </tfoot>
         </table>
 
-        <div id="reportStatusMessage" style="font-weight: bold; margin-bottom: 20px;"></div>
+        <div id="reportStatusMessage" style="font-weight: bold; margin-bottom: 10px;"></div>
+        <div id="coachAdviceArea"></div>
 
         <div class="signature-area">
             <div>
@@ -454,8 +474,15 @@
     function getStoredData() {
         const data = localStorage.getItem('lgs_study_data');
         return data ? JSON.parse(data) : {
-            weeklySolved: { "Matematik": 0, "Fen Bilimleri": 0, "Türkçe": 0, "T.C. İnkılap Tarihi": 0, "İngilizce": 0, "Din Kültürü": 0 },
-            completedBlocks: {}, // Object formatında tutuyoruz: { "block-1": { subject: "Matematik", count: 25 } }
+            weeklyData: {
+                "Matematik": { correct: 0, wrong: 0 },
+                "Fen Bilimleri": { correct: 0, wrong: 0 },
+                "Türkçe": { correct: 0, wrong: 0 },
+                "T.C. İnkılap Tarihi": { correct: 0, wrong: 0 },
+                "İngilizce": { correct: 0, wrong: 0 },
+                "Din Kültürü": { correct: 0, wrong: 0 }
+            },
+            completedBlocks: {}
         };
     }
 
@@ -467,8 +494,13 @@
     function updateProgressUI() {
         const data = getStoredData();
         let totalSolved = 0;
-        for (let sub in data.weeklySolved) {
-            totalSolved += data.weeklySolved[sub];
+        let totalNet = 0;
+
+        for (let sub in data.weeklyData) {
+            const c = data.weeklyData[sub].correct;
+            const w = data.weeklyData[sub].wrong;
+            totalSolved += (c + w);
+            totalNet += (c - (w / 3));
         }
 
         const percentage = Math.min(100, Math.round((totalSolved / WEEKLY_GOAL) * 100));
@@ -478,7 +510,7 @@
 
         const remaining = Math.max(0, WEEKLY_GOAL - totalSolved);
         document.getElementById('weeklyProgressText').innerText = 
-            `Çözülen: ${totalSolved} / ${WEEKLY_GOAL} Soru (Kalan Hedef: ${remaining} Soru)`;
+            `Çözülen: ${totalSolved} / ${WEEKLY_GOAL} Soru (Kalan: ${remaining}) | Toplam Net: ${totalNet.toFixed(2)}`;
     }
 
     function loadTodayCurriculum() {
@@ -503,6 +535,20 @@
     let timerInterval = null;
     let timeLeft = 40 * 60;
     let isWorkingState = true;
+
+    function playAlarmSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 Notası
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 1.2);
+        } catch (e) {
+            console.log("Ses çalınamadı:", e);
+        }
+    }
 
     function onWorkDurationChange() {
         if (!timerInterval && isWorkingState) {
@@ -533,6 +579,7 @@
             } else {
                 clearInterval(timerInterval);
                 timerInterval = null;
+                playAlarmSound();
                 alert(isWorkingState ? "🔔 Ders Bitti! Teneffüs Zamanı." : "🔔 Teneffüs Bitti! Yeni Ders Başlıyor.");
                 isWorkingState = !isWorkingState;
                 timeLeft = (isWorkingState ? parseInt(document.getElementById('workDuration').value) : parseInt(document.getElementById('restDuration').value)) * 60;
@@ -579,7 +626,7 @@
         card.className = 'day-card';
         card.style.gridColumn = "1 / -1";
 
-        let html = `<h3>⏰ Günlük Program (Günlük Hedef: ~${DAILY_GOAL} Soru / Blok Başına Hedef: ${targetPerBlock} Soru)</h3><br>`;
+        let html = `<h3>⏰ Günlük Program (Günlük Hedef: ~${DAILY_GOAL} Soru / Blok Hedefi: ${targetPerBlock} Soru)</h3><br>`;
 
         const storedData = getStoredData();
 
@@ -594,7 +641,7 @@
             const isCompleted = !!completedInfo;
 
             const displaySubject = isCompleted ? completedInfo.subject : plannedSubject;
-            const solvedText = isCompleted ? ` (Çözülen: ${completedInfo.count} Soru)` : ` (Hedef: ${targetPerBlock} Soru)`;
+            const solvedText = isCompleted ? ` (${completedInfo.correct} D, ${completedInfo.wrong} Y - Net: ${completedInfo.net})` : ` (Hedef: ${targetPerBlock} Soru)`;
 
             const blockLabel = `${i}. Blok (${startStr} - ${endStr}) - ${displaySubject}`;
 
@@ -633,7 +680,8 @@
     function verifyWork() {
         const fileInput = document.getElementById('photoInput');
         const selectedBlockId = document.getElementById('targetBlock').value;
-        const count = parseInt(document.getElementById('solvedCount').value) || 0;
+        const correct = parseInt(document.getElementById('correctCount').value) || 0;
+        const wrong = parseInt(document.getElementById('wrongCount').value) || 0;
         const subject = document.getElementById('solvedSubject').value;
         const msgDiv = document.getElementById('verifyMessage');
 
@@ -651,22 +699,25 @@
 
         const data = getStoredData();
 
-        // Eğer bu blok önceden başka bir dersle tamamlandıysa eski soru sayısını düşelim
+        // Eğer bu blok daha önceden tamamlandıysa eski değerleri düşelim
         if (data.completedBlocks[selectedBlockId]) {
             const old = data.completedBlocks[selectedBlockId];
-            if (data.weeklySolved[old.subject]) {
-                data.weeklySolved[old.subject] = Math.max(0, data.weeklySolved[old.subject] - old.count);
+            if (data.weeklyData[old.subject]) {
+                data.weeklyData[old.subject].correct = Math.max(0, data.weeklyData[old.subject].correct - old.correct);
+                data.weeklyData[old.subject].wrong = Math.max(0, data.weeklyData[old.subject].wrong - old.wrong);
             }
         }
 
-        if (!data.weeklySolved[subject]) data.weeklySolved[subject] = 0;
-        data.weeklySolved[subject] += count;
+        if (!data.weeklyData[subject]) data.weeklyData[subject] = { correct: 0, wrong: 0 };
+        data.weeklyData[subject].correct += correct;
+        data.weeklyData[subject].wrong += wrong;
 
-        data.completedBlocks[selectedBlockId] = { subject: subject, count: count };
+        const net = (correct - (wrong / 3)).toFixed(2);
+        data.completedBlocks[selectedBlockId] = { subject: subject, correct: correct, wrong: wrong, net: net };
 
         saveData(data);
 
-        // Arayüzdeki bloğu güncelle
+        // Arayüzü güncelle
         const targetSlot = document.getElementById(selectedBlockId);
         const targetBadge = document.getElementById(`badge-${selectedBlockId}`);
         const textSpan = document.getElementById(`text-${selectedBlockId}`);
@@ -676,12 +727,12 @@
             targetBadge.className = "badge badge-completed";
             targetBadge.innerText = "✅ Tamamlandı";
             if (textSpan) {
-                textSpan.innerHTML = `📚 <strong>${subject}</strong> (Çözülen: <strong>${count} Soru</strong>)`;
+                textSpan.innerHTML = `📚 <strong>${subject}</strong> (${correct} D, ${wrong} Y - <strong>Net: ${net}</strong>)`;
             }
         }
 
         msgDiv.style.color = "var(--success)";
-        msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${count} soruluk kanıt kaydedildi.`;
+        msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${correct + wrong} soruluk (${net} Net) kanıt kaydedildi.`;
 
         fileInput.value = '';
         document.getElementById('imagePreview').style.display = 'none';
@@ -693,23 +744,44 @@
         tbody.innerHTML = '';
 
         let totalSolved = 0;
-        for (let subject in data.weeklySolved) {
-            const count = data.weeklySolved[subject];
-            totalSolved += count;
+        let totalCorrect = 0;
+        let totalWrong = 0;
+        let totalNet = 0;
+
+        let minSubject = "";
+        let minCount = Infinity;
+
+        for (let subject in data.weeklyData) {
+            const c = data.weeklyData[subject].correct;
+            const w = data.weeklyData[subject].wrong;
+            const solved = c + w;
+            const net = (c - (w / 3));
+
+            totalSolved += solved;
+            totalCorrect += c;
+            totalWrong += w;
+            totalNet += net;
+
+            if (solved < minCount) {
+                minCount = solved;
+                minSubject = subject;
+            }
 
             tbody.innerHTML += `
                 <tr>
                     <td style="padding: 8px; border: 1px solid #cbd5e1;">${subject}</td>
-                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${count} Soru</td>
-                    <td style="padding: 8px; border: 1px solid #cbd5e1;">${count > 0 ? 'Tamamlandı' : 'Çözülmedi'}</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${solved} Soru</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1; color: green;">${c}</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1; color: red;">${w}</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${net.toFixed(2)}</td>
                 </tr>
             `;
         }
 
-        const completedCount = Object.keys(data.completedBlocks).length;
-
         document.getElementById('reportTotalSolved').innerText = `${totalSolved} / ${WEEKLY_GOAL} Soru`;
-        document.getElementById('reportTotalSessions').innerText = `${completedCount} Blok Tamamlandı`;
+        document.getElementById('reportTotalCorrect').innerText = totalCorrect;
+        document.getElementById('reportTotalWrong').innerText = totalWrong;
+        document.getElementById('reportTotalNet').innerText = `${totalNet.toFixed(2)} Net`;
 
         const statusMsg = document.getElementById('reportStatusMessage');
         if (totalSolved >= WEEKLY_GOAL) {
@@ -720,11 +792,40 @@
             statusMsg.innerText = `⚠️ Haftalık 600 soru hedefine ulaşmak için ${WEEKLY_GOAL - totalSolved} soru eksiğiniz var.`;
         }
 
+        // AKILLI KOÇ TAVSİYESİ
+        const coachAdviceArea = document.getElementById('coachAdviceArea');
+        coachAdviceArea.innerHTML = `
+            <div class="advice-card">
+                💡 <strong>Akıllı Koç Tavsiyesi:</strong> Bu hafta en az soru çözdüğün ders <strong>${minSubject}</strong> (${minCount} Soru). 
+                LGS hedeflerine ulaşmak için önümüzdeki hafta bu derse en az 2 blok daha fazla ayırmanı öneriyorum!
+            </div>
+        `;
+
         const now = new Date();
         document.getElementById('reportDateRange').innerText = `Rapor Tarihi: ${now.toLocaleDateString('tr-TR')}`;
 
         document.getElementById('reportPrintArea').style.display = 'block';
         document.getElementById('reportPrintArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function exportToCSV() {
+        const data = getStoredData();
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFFDers,Dogru,Yanlis,Toplam Soru,Net\n";
+
+        for (let sub in data.weeklyData) {
+            const c = data.weeklyData[sub].correct;
+            const w = data.weeklyData[sub].wrong;
+            const net = (c - (w / 3)).toFixed(2);
+            csvContent += `"${sub}",${c},${w},${c + w},${net}\n`;
+        }
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "LGS_Haftalik_Calisma_Raporu.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function resetWeeklyData() {
