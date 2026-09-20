@@ -244,6 +244,20 @@
             font-weight: bold;
         }
 
+        .subject-progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .subject-progress-card {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
         .report-box {
             background: #ffffff;
             border: 2px solid var(--primary);
@@ -296,15 +310,18 @@
 <div class="container">
     <h1 class="no-print">🎯 8. Sınıf LGS Akıllı Çalışma Koçu</h1>
 
-    <!-- HAFTALIK HEDEF ÖZETİ (600 Soru) -->
+    <!-- HAFTALIK HEDEF ÖZETİ (600 Soru - Ders Dağılımlı) -->
     <div class="card no-print">
-        <h2>📊 Haftalık Soru Hedefi (Hedef: 600 Soru)</h2>
+        <h2>📊 Haftalık LGS Soru Hedefleri (Toplam: 600 Soru)</h2>
         <div class="progress-container">
             <div class="progress-bar" id="weeklyProgressBar">0%</div>
         </div>
         <p style="text-align: center; font-weight: bold; margin-top: 5px;" id="weeklyProgressText">
-            Çözülen: 0 / 600 Soru (Kalan: 600 Soru) | Toplam Net: 0.00
+            Çözülen: 0 / 600 Soru | Toplam Net: 0.00
         </p>
+
+        <!-- DERS BAZLI İLERLEME BARLARI -->
+        <div class="subject-progress-grid" id="subjectProgressGrid"></div>
     </div>
 
     <!-- MÜFREDAT KARTI -->
@@ -348,15 +365,16 @@
                 <input type="number" id="totalSessions" value="4" min="1" max="10">
             </div>
         </div>
-        <button class="btn" onclick="generateHourlySchedule()">Programı Oluştur</button>
+        <button class="btn" onclick="generateHourlySchedule()">Programı Yeniden Oluştur</button>
     </div>
 
     <div class="schedule-grid no-print" id="hourlyGrid"></div>
 
     <!-- FOTOĞRAFLI GÖREV ONAYLAMA & NET DETAYLARI -->
     <div class="card no-print" id="proofCard">
-        <h2>📸 Çalışma Kanıtı & Görev Onaylama</h2>
+        <h2>📸 Soru Çözüm Onayı & Net Girişi</h2>
         <div class="upload-section">
+            <label style="display:block; margin-bottom: 8px; font-weight: bold; color: var(--danger);">* Çalışma Kanıtı Fotoğrafı (Zorunlu):</label>
             <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
             <br>
             <img id="imagePreview" class="preview-img" alt="Çalışma Kanıtı">
@@ -364,17 +382,17 @@
             <div class="grid-form" style="margin-top: 15px; max-width: 800px; margin: 15px auto 0 auto;">
                 <div class="form-group">
                     <label for="targetBlock">Tamamlanan Blok:</label>
-                    <select id="targetBlock"><option value="">Önce programı oluşturun...</option></select>
+                    <select id="targetBlock"><option value="">Yükleniyor...</option></select>
                 </div>
                 <div class="form-group">
                     <label for="solvedSubject">Çözülen Ders:</label>
                     <select id="solvedSubject">
-                        <option value="Matematik">Matematik</option>
-                        <option value="Fen Bilimleri">Fen Bilimleri</option>
-                        <option value="Türkçe">Türkçe</option>
-                        <option value="T.C. İnkılap Tarihi">T.C. İnkılap Tarihi</option>
-                        <option value="İngilizce">İngilizce</option>
-                        <option value="Din Kültürü">Din Kültürü</option>
+                        <option value="Matematik">Matematik (Hedef: 150)</option>
+                        <option value="Fen Bilimleri">Fen Bilimleri (Hedef: 150)</option>
+                        <option value="Türkçe">Türkçe (Hedef: 120)</option>
+                        <option value="T.C. İnkılap Tarihi">T.C. İnkılap (Hedef: 60)</option>
+                        <option value="İngilizce">İngilizce (Hedef: 60)</option>
+                        <option value="Din Kültürü">Din Kültürü (Hedef: 60)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -406,7 +424,8 @@
             <thead>
                 <tr style="background-color: #f1f5f9; text-align: left;">
                     <th style="padding: 10px; border: 1px solid #cbd5e1;">Ders</th>
-                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Soru Sayısı</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Hedef</th>
+                    <th style="padding: 10px; border: 1px solid #cbd5e1;">Çözülen</th>
                     <th style="padding: 10px; border: 1px solid #cbd5e1;">Doğru</th>
                     <th style="padding: 10px; border: 1px solid #cbd5e1;">Yanlış</th>
                     <th style="padding: 10px; border: 1px solid #cbd5e1;">Net</th>
@@ -416,7 +435,8 @@
             <tfoot>
                 <tr style="font-weight: bold; background-color: #f8fafc;">
                     <td style="padding: 10px; border: 1px solid #cbd5e1;">TOPLAM</td>
-                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalSolved">0 / 600 Soru</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;">600 Soru</td>
+                    <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalSolved">0 Soru</td>
                     <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalCorrect">0</td>
                     <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalWrong">0</td>
                     <td style="padding: 10px; border: 1px solid #cbd5e1;" id="reportTotalNet">0.00 Net</td>
@@ -453,7 +473,15 @@
 
 <script>
     const WEEKLY_GOAL = 600;
-    const DAILY_GOAL = Math.round(WEEKLY_GOAL / 7);
+
+    const subjectGoals = {
+        "Matematik": 150,
+        "Fen Bilimleri": 150,
+        "Türkçe": 120,
+        "T.C. İnkılap Tarihi": 60,
+        "İngilizce": 60,
+        "Din Kültürü": 60
+    };
 
     const defaultSubjects = ["Matematik", "Fen Bilimleri", "Türkçe", "T.C. İnkılap Tarihi", "İngilizce", "Din Kültürü"];
 
@@ -496,11 +524,32 @@
         let totalSolved = 0;
         let totalNet = 0;
 
-        for (let sub in data.weeklyData) {
-            const c = data.weeklyData[sub].correct;
-            const w = data.weeklyData[sub].wrong;
-            totalSolved += (c + w);
-            totalNet += (c - (w / 3));
+        const subjectGrid = document.getElementById('subjectProgressGrid');
+        subjectGrid.innerHTML = '';
+
+        for (let sub in subjectGoals) {
+            const c = data.weeklyData[sub] ? data.weeklyData[sub].correct : 0;
+            const w = data.weeklyData[sub] ? data.weeklyData[sub].wrong : 0;
+            const solved = c + w;
+            const goal = subjectGoals[sub];
+            const net = Math.max(0, c - (w / 3));
+
+            totalSolved += solved;
+            totalNet += net;
+
+            const percent = Math.min(100, Math.round((solved / goal) * 100));
+
+            subjectGrid.innerHTML += `
+                <div class="subject-progress-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>${sub}</strong>
+                        <span>${solved} / ${goal} Soru (%${percent})</span>
+                    </div>
+                    <div class="progress-container" style="height:10px; margin:5px 0;">
+                        <div class="progress-bar" style="width: ${percent}%;"></div>
+                    </div>
+                </div>
+            `;
         }
 
         const percentage = Math.min(100, Math.round((totalSolved / WEEKLY_GOAL) * 100));
@@ -541,7 +590,7 @@
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
             osc.type = "sine";
-            osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 Notası
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime);
             osc.connect(ctx.destination);
             osc.start();
             osc.stop(ctx.currentTime + 1.2);
@@ -610,13 +659,11 @@
         const startTimeStr = document.getElementById('startTime').value;
         const totalSessions = parseInt(document.getElementById('totalSessions').value) || 4;
 
-        const targetPerBlock = Math.ceil(DAILY_GOAL / totalSessions);
-
         const container = document.getElementById('hourlyGrid');
         const blockSelect = document.getElementById('targetBlock');
         
         container.innerHTML = '';
-        blockSelect.innerHTML = '<option value="">Tamamlanan Bloğu Seçin...</option>';
+        blockSelect.innerHTML = '';
 
         let [hours, minutes] = startTimeStr.split(':').map(Number);
         let currTime = new Date();
@@ -626,7 +673,7 @@
         card.className = 'day-card';
         card.style.gridColumn = "1 / -1";
 
-        let html = `<h3>⏰ Günlük Program (Günlük Hedef: ~${DAILY_GOAL} Soru / Blok Hedefi: ${targetPerBlock} Soru)</h3><br>`;
+        let html = `<h3>⏰ Günlük Program</h3><br>`;
 
         const storedData = getStoredData();
 
@@ -641,7 +688,7 @@
             const isCompleted = !!completedInfo;
 
             const displaySubject = isCompleted ? completedInfo.subject : plannedSubject;
-            const solvedText = isCompleted ? ` (${completedInfo.correct} D, ${completedInfo.wrong} Y - Net: ${completedInfo.net})` : ` (Hedef: ${targetPerBlock} Soru)`;
+            const solvedText = isCompleted ? ` (${completedInfo.correct} D, ${completedInfo.wrong} Y - Net: ${completedInfo.net})` : ` (Planlanan: ${plannedSubject})`;
 
             const blockLabel = `${i}. Blok (${startStr} - ${endStr}) - ${displaySubject}`;
 
@@ -685,6 +732,7 @@
         const subject = document.getElementById('solvedSubject').value;
         const msgDiv = document.getElementById('verifyMessage');
 
+        // Fotoğraf yükleme zorunluluğu kontrolü
         if (fileInput.files.length === 0) {
             msgDiv.style.color = "var(--danger)";
             msgDiv.innerText = "⚠️ Lütfen önce yaptığınız çalışmanın fotoğrafını yükleyin!";
@@ -699,7 +747,7 @@
 
         const data = getStoredData();
 
-        // Eğer bu blok daha önceden tamamlandıysa eski değerleri düşelim
+        // Daha önceden girilmiş veri varsa çıkar
         if (data.completedBlocks[selectedBlockId]) {
             const old = data.completedBlocks[selectedBlockId];
             if (data.weeklyData[old.subject]) {
@@ -712,7 +760,7 @@
         data.weeklyData[subject].correct += correct;
         data.weeklyData[subject].wrong += wrong;
 
-        const net = (correct - (wrong / 3)).toFixed(2);
+        const net = Math.max(0, (correct - (wrong / 3))).toFixed(2);
         data.completedBlocks[selectedBlockId] = { subject: subject, correct: correct, wrong: wrong, net: net };
 
         saveData(data);
@@ -732,7 +780,7 @@
         }
 
         msgDiv.style.color = "var(--success)";
-        msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${correct + wrong} soruluk (${net} Net) kanıt kaydedildi.`;
+        msgDiv.innerText = `🎉 TEBRİKLER! ${subject} dersinden ${correct + wrong} soruluk (${net} Net) çalışma kanıtıyla kaydedildi.`;
 
         fileInput.value = '';
         document.getElementById('imagePreview').style.display = 'none';
@@ -749,27 +797,30 @@
         let totalNet = 0;
 
         let minSubject = "";
-        let minCount = Infinity;
+        let minRate = Infinity;
 
-        for (let subject in data.weeklyData) {
-            const c = data.weeklyData[subject].correct;
-            const w = data.weeklyData[subject].wrong;
+        for (let subject in subjectGoals) {
+            const goal = subjectGoals[subject];
+            const c = data.weeklyData[subject] ? data.weeklyData[subject].correct : 0;
+            const w = data.weeklyData[subject] ? data.weeklyData[subject].wrong : 0;
             const solved = c + w;
-            const net = (c - (w / 3));
+            const net = Math.max(0, (c - (w / 3)));
 
             totalSolved += solved;
             totalCorrect += c;
             totalWrong += w;
             totalNet += net;
 
-            if (solved < minCount) {
-                minCount = solved;
+            const completionRate = solved / goal;
+            if (completionRate < minRate) {
+                minRate = completionRate;
                 minSubject = subject;
             }
 
             tbody.innerHTML += `
                 <tr>
                     <td style="padding: 8px; border: 1px solid #cbd5e1;">${subject}</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">${goal} Soru</td>
                     <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${solved} Soru</td>
                     <td style="padding: 8px; border: 1px solid #cbd5e1; color: green;">${c}</td>
                     <td style="padding: 8px; border: 1px solid #cbd5e1; color: red;">${w}</td>
@@ -792,12 +843,11 @@
             statusMsg.innerText = `⚠️ Haftalık 600 soru hedefine ulaşmak için ${WEEKLY_GOAL - totalSolved} soru eksiğiniz var.`;
         }
 
-        // AKILLI KOÇ TAVSİYESİ
         const coachAdviceArea = document.getElementById('coachAdviceArea');
         coachAdviceArea.innerHTML = `
             <div class="advice-card">
-                💡 <strong>Akıllı Koç Tavsiyesi:</strong> Bu hafta en az soru çözdüğün ders <strong>${minSubject}</strong> (${minCount} Soru). 
-                LGS hedeflerine ulaşmak için önümüzdeki hafta bu derse en az 2 blok daha fazla ayırmanı öneriyorum!
+                💡 <strong>Akıllı Koç Tavsiyesi:</strong> Bu hafta hedefine göre en az soru çözdüğün ders <strong>${minSubject}</strong>. 
+                Önümüzdeki hafta bu dersin ağırlığını artırıp eksiklerini tamamlamanı öneriyorum!
             </div>
         `;
 
@@ -810,13 +860,14 @@
 
     function exportToCSV() {
         const data = getStoredData();
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFFDers,Dogru,Yanlis,Toplam Soru,Net\n";
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFFDers,Hedef,Dogru,Yanlis,Toplam Soru,Net\n";
 
-        for (let sub in data.weeklyData) {
-            const c = data.weeklyData[sub].correct;
-            const w = data.weeklyData[sub].wrong;
-            const net = (c - (w / 3)).toFixed(2);
-            csvContent += `"${sub}",${c},${w},${c + w},${net}\n`;
+        for (let sub in subjectGoals) {
+            const goal = subjectGoals[sub];
+            const c = data.weeklyData[sub] ? data.weeklyData[sub].correct : 0;
+            const w = data.weeklyData[sub] ? data.weeklyData[sub].wrong : 0;
+            const net = Math.max(0, (c - (w / 3))).toFixed(2);
+            csvContent += `"${sub}",${goal},${c},${w},${c + w},${net}\n`;
         }
 
         const encodedUri = encodeURI(csvContent);
@@ -853,6 +904,7 @@
 
     window.onload = function() {
         loadTodayCurriculum();
+        generateHourlySchedule();
         updateProgressUI();
         onWorkDurationChange();
     };
