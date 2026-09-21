@@ -310,7 +310,7 @@
 <div class="container">
     <h1 class="no-print">🎯 8. Sınıf LGS Akıllı Çalışma Koçu</h1>
 
-    <!-- HAFTALIK HEDEF ÖZETİ (600 Soru - Ders Dağılımlı) -->
+    <!-- HAFTALIK HEDEF ÖZETİ -->
     <div class="card no-print">
         <h2>📊 Haftalık LGS Soru Hedefleri (Toplam: 600 Soru)</h2>
         <div class="progress-container">
@@ -362,10 +362,10 @@
             </div>
             <div class="form-group">
                 <label for="totalSessions">Toplam Ders Bloğu</label>
-                <input type="number" id="totalSessions" value="4" min="1" max="10">
+                <input type="number" id="totalSessions" value="6" min="1" max="12">
             </div>
         </div>
-        <button class="btn" onclick="generateHourlySchedule()">Programı Yeniden Oluştur</button>
+        <button class="btn" onclick="generateHourlySchedule(true)">🎲 Programı Rastgele Derslerle Yeniden Oluştur</button>
     </div>
 
     <div class="schedule-grid no-print" id="hourlyGrid"></div>
@@ -510,7 +510,8 @@
                 "İngilizce": { correct: 0, wrong: 0 },
                 "Din Kültürü": { correct: 0, wrong: 0 }
             },
-            completedBlocks: {}
+            completedBlocks: {},
+            blockPlan: {}
         };
     }
 
@@ -653,11 +654,22 @@
         updateTimerDisplay();
     }
 
-    function generateHourlySchedule() {
+    function getRandomSubjects(count) {
+        let list = [];
+        let pool = [...defaultSubjects];
+        for (let i = 0; i < count; i++) {
+            if (pool.length === 0) pool = [...defaultSubjects];
+            let randomIndex = Math.floor(Math.random() * pool.length);
+            list.push(pool.splice(randomIndex, 1)[0]);
+        }
+        return list;
+    }
+
+    function generateHourlySchedule(forceNewRandom = false) {
         const workMin = parseInt(document.getElementById('workDuration').value) || 40;
         const restMin = parseInt(document.getElementById('restDuration').value) || 10;
         const startTimeStr = document.getElementById('startTime').value;
-        const totalSessions = parseInt(document.getElementById('totalSessions').value) || 4;
+        const totalSessions = parseInt(document.getElementById('totalSessions').value) || 6;
 
         const container = document.getElementById('hourlyGrid');
         const blockSelect = document.getElementById('targetBlock');
@@ -676,6 +688,16 @@
         let html = `<h3>⏰ Günlük Program</h3><br>`;
 
         const storedData = getStoredData();
+        if (!storedData.blockPlan) storedData.blockPlan = {};
+
+        // Eğer yeni rastgele program istenirse veya önceden tanımlı plan yoksa rastgele ders ataması yap
+        if (forceNewRandom || Object.keys(storedData.blockPlan).length === 0) {
+            let randomList = getRandomSubjects(totalSessions);
+            for (let i = 1; i <= totalSessions; i++) {
+                storedData.blockPlan[`block-${i}`] = randomList[i - 1];
+            }
+            saveData(storedData);
+        }
 
         for (let i = 1; i <= totalSessions; i++) {
             let startStr = currTime.toTimeString().substring(0, 5);
@@ -683,7 +705,7 @@
             let endStr = currTime.toTimeString().substring(0, 5);
 
             const blockId = `block-${i}`;
-            const plannedSubject = defaultSubjects[(i - 1) % defaultSubjects.length];
+            const plannedSubject = storedData.blockPlan[blockId] || defaultSubjects[(i - 1) % defaultSubjects.length];
             const completedInfo = storedData.completedBlocks[blockId];
             const isCompleted = !!completedInfo;
 
@@ -747,7 +769,7 @@
 
         const data = getStoredData();
 
-        // Daha önceden girilmiş veri varsa çıkar
+        // Eğer bu blok için daha önceden veri girildiyse eski dersin verilerini düş (üzerine yazmayı ve veri çakışmasını engelle)
         if (data.completedBlocks[selectedBlockId]) {
             const old = data.completedBlocks[selectedBlockId];
             if (data.weeklyData[old.subject]) {
@@ -784,6 +806,9 @@
 
         fileInput.value = '';
         document.getElementById('imagePreview').style.display = 'none';
+        
+        // Seçim listesini güncellenmiş blok isimleriyle yenile
+        generateHourlySchedule(false);
     }
 
     function generateWeeklyReport() {
@@ -884,7 +909,7 @@
             localStorage.removeItem('lgs_study_data');
             updateProgressUI();
             document.getElementById('reportPrintArea').style.display = 'none';
-            generateHourlySchedule();
+            generateHourlySchedule(true);
             alert("Tüm haftalık veriler sıfırlandı. Yeni haftada başarılar!");
         }
     }
@@ -904,7 +929,7 @@
 
     window.onload = function() {
         loadTodayCurriculum();
-        generateHourlySchedule();
+        generateHourlySchedule(false);
         updateProgressUI();
         onWorkDurationChange();
     };
